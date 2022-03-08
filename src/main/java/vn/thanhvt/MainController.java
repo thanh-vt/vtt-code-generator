@@ -3,6 +3,8 @@ package vn.thanhvt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -22,13 +24,29 @@ public class MainController {
 
     private final FileChooser fileChooser = new FileChooser();
 
-    private JarProcessor jarProcessor;
+    private final MainService mainService = new MainService();
+
+    @FXML
+    private Button browseFileBtn;
+
+    @FXML
+    private Button clearFileBtn;
+
 
     @FXML
     private Label fileLabel;
 
     @FXML
     private Tooltip fileLabelTooltip;
+
+    @FXML
+    private CheckBox isSpringCheckbox;
+
+    @FXML
+    private Button loadBtn;
+
+    @FXML
+    private Button unloadBtn;
 
     @FXML
     private TextField classNameInput;
@@ -39,6 +57,8 @@ public class MainController {
     @FXML
     private TextArea outputTextArea;
 
+    private File selectedFile;
+
     @FXML
     public void initialize() {
         this.fileChooser.setTitle("Select jar file");
@@ -46,7 +66,7 @@ public class MainController {
                 new File(System.getProperty("user.home"))
         );
         this.fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("All file", "*.*"),
+                new FileChooser.ExtensionFilter("All file", "*.jar", "*.war"),
                 new FileChooser.ExtensionFilter("Java Archive", "*.jar"),
                 new FileChooser.ExtensionFilter("Web Archive", "*.war")
         );
@@ -57,23 +77,17 @@ public class MainController {
     void clearFile(ActionEvent event) {
         this.fileLabel.setText(DEFAULT_FILE_LABEL);
         this.fileLabelTooltip.setText(DEFAULT_FILE_LABEL);
-        if (this.jarProcessor != null) {
-            this.jarProcessor = null;
-        }
+        this.selectedFile = null;
     }
 
     @FXML
     public void openFileBrowser(ActionEvent event) {
         File selectedFile = fileChooser.showOpenDialog(App.mainStage);
         if (selectedFile != null) {
-            try {
-                this.jarProcessor = new JarProcessor(selectedFile);
-                this.fileLabel.setText(selectedFile.getAbsolutePath());
-                this.fileLabelTooltip.setText(selectedFile.getAbsolutePath());
-                System.out.printf("Jar file loaded: %s%n", selectedFile.getAbsolutePath());
-            } catch (Exception e) {
-                Util.showError(e);
-            }
+            this.fileLabel.setText(selectedFile.getAbsolutePath());
+            this.fileLabelTooltip.setText(selectedFile.getAbsolutePath());
+            System.out.printf("File loaded: %s%n", selectedFile.getAbsolutePath());
+            this.selectedFile = selectedFile;
         }
 
     }
@@ -89,16 +103,39 @@ public class MainController {
     }
 
     @FXML
+    void loadClasses(ActionEvent event) {
+        try {
+            this.mainService.applyConfig(this.selectedFile, this.isSpringCheckbox.isSelected());
+            this.setLoaded(true);
+        } catch (Exception e) {
+            Util.showError(e);
+            this.setLoaded(false);
+        }
+    }
+
+    @FXML
+    void unloadClasses(ActionEvent event) {
+        this.mainService.clearConfig();
+        this.setLoaded(false);
+    }
+
+    void setLoaded(boolean isLoaded) {
+        this.isSpringCheckbox.setDisable(isLoaded);
+        this.loadBtn.setDisable(isLoaded);
+        this.unloadBtn.setDisable(!isLoaded);
+        this.browseFileBtn.setDisable(isLoaded);
+        this.clearFileBtn.setDisable(isLoaded);
+    }
+
+    @FXML
     void generate(ActionEvent event) {
         try {
             String className = this.classNameInput.getText();
             if (className == null || className.trim().isEmpty()) {
                 throw new RuntimeException("Classname required!");
             }
-            if (this.jarProcessor != null) {
-                Class<?> clazz = this.jarProcessor.getAvailableClasses().get(className);
-                System.out.println(clazz.getDeclaredField("maHq"));
-            }
+            Class<?> clazz = this.mainService.getCurrentClassLoader().loadClass(className);
+            System.out.println(clazz.getDeclaredField("maHq"));
             String inputText = this.inputTextArea.getText();
             Map<String, ?> map = this.objectMapper.readValue(inputText, Map.class);
             System.out.println(map);
@@ -109,8 +146,10 @@ public class MainController {
                     .append("();\n");
 
             for (Map.Entry<String, ?> entry : map.entrySet()) {
+                String setter = ".set" + Util.snakeToPascalCase(entry.getKey());
+//                if (clazz.getDeclaredMethod()) // TODO
                 outputBuilder.append(varName)
-                        .append(".set").append(Util.snakeToPascalCase(entry.getKey()))
+                        .append(setter)
                         .append("(").append(entry.getValue()).append(");\n");
             }
             this.outputTextArea.setText(outputBuilder.toString());

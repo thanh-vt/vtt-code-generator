@@ -19,8 +19,9 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        scene = new Scene(loadFXML("main"), 900, 600);
+        scene = new Scene(loadFXML("main"), 1280, 800);
         stage.setScene(scene);
+        stage.setTitle("JSON TO INIT CODE GENERATOR");
         stage.show();
         mainStage = stage;
     }

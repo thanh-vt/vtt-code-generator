@@ -41,7 +41,7 @@ public class Util {
 
         for (String string : parts) {
 
-            String temp = string.substring(0, 1).toUpperCase() + string.substring(1);
+            String temp = string.substring(0, 1).toUpperCase() + string.substring(1).toLowerCase();
             pascalString.append(temp);
 
         }
@@ -53,7 +53,8 @@ public class Util {
         alert.setTitle("Error");
 
         // Header Text: null
-        alert.setHeaderText("Json Exception: " + e.getMessage());
+        alert.setHeaderText("Error: " + e.getMessage());
+        e.printStackTrace();
         StringBuilder sb = new StringBuilder();
         int max = 0;
         for (StackTraceElement stackTraceElement : e.getStackTrace()) {
