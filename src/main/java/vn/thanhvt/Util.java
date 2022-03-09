@@ -2,6 +2,10 @@ package vn.thanhvt;
 
 import javafx.scene.control.Alert;
 
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+
 public class Util {
 
     public static String snakeToCamelCase(String str) {
@@ -46,6 +50,16 @@ public class Util {
 
         }
         return pascalString.toString();
+    }
+
+    public static Map<String, Method> generateMethodMap(Class<?> clazz, Map<String, Method> methodMap) {
+        for (Method method: clazz.getDeclaredMethods()) {
+            methodMap.put(method.getName(), method);
+        }
+        if (clazz.getSuperclass() != null) {
+            generateMethodMap(clazz.getSuperclass(), methodMap);
+        }
+        return methodMap;
     }
 
     public static void showError(Exception e) {

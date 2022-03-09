@@ -27,8 +27,6 @@ public class MainController {
 
     private static final String DEFAULT_FILE_LABEL = "No file selected";
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     private final FileChooser fileChooser = new FileChooser();
 
     private final MainService mainService = new MainService();
@@ -137,61 +135,8 @@ public class MainController {
     @FXML
     void generate(ActionEvent event) {
         try {
-            String className = this.classNameInput.getText();
-            if (className == null || className.trim().isEmpty()) {
-                throw new RuntimeException("Classname required!");
-            }
-            Class<?> clazz = this.mainService.getCurrentClassLoader().loadClass(className);
-            String inputText = this.inputTextArea.getText();
-            Map<String, ?> map = this.objectMapper.readValue(inputText, Map.class);
-            String classSimpleName = clazz.getSimpleName();
-            String varName = classSimpleName.substring(0, 1).toLowerCase(Locale.ROOT) + classSimpleName.substring(1);
-            StringBuilder outputBuilder = new StringBuilder(classSimpleName)
-                    .append(" ").append(varName)
-                    .append(" = new ").append(classSimpleName)
-                    .append("();\n");
-            Map<String, Method> methodMap = new HashMap<>();
-            for (Method method: clazz.getDeclaredMethods()) {
-                methodMap.put(method.getName(), method);
-            }
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-            for (Map.Entry<String, ?> entry : map.entrySet()) {
-                String pascalFieldName = Util.snakeToPascalCase(entry.getKey());
-                String getterName = "get" + pascalFieldName;
-                Method getter = methodMap.get(getterName);
-                if (getter == null) {
-                    continue;
-                }
-                Class<?> fieldType = getter.getReturnType();
-                String val;
-                if (entry.getValue() == null) {
-                    val = "null";
-                } else if (fieldType == String.class) {
-                    val = "\"" + entry.getValue() + "\"";
-                } else if (Number.class.isAssignableFrom(fieldType)) {
-                    if (fieldType == Double.class) {
-                        val = entry.getValue() + "d";
-                    } else if (fieldType == Float.class) {
-                        val = entry.getValue() + "f";
-                    } else if (fieldType == Long.class) {
-                        val = entry.getValue() + "l";
-                    } else if (fieldType == BigDecimal.class) {
-                        val = "new BigDecimal(\"" + entry.getValue() + "\")";
-                    } else {
-                        val = String.valueOf(entry.getValue());
-                    }
-                } else if (fieldType == Date.class) {
-                    Date date = sdf.parse(String.valueOf(entry.getValue()));
-                    val = "new Date(" + date.getTime() + "l) // " + entry.getValue();
-                } else {
-                    throw new OperationNotSupportedException(String.format("Type %s not supported", fieldType.getName()));
-                }
-                String setterName = "set" + pascalFieldName;
-                outputBuilder.append(varName)
-                        .append(".").append(setterName)
-                        .append("(").append(val).append(")").append(";\n");
-            }
-            this.outputTextArea.setText(outputBuilder.toString());
+            String outputText = this.mainService.generate(this.classNameInput.getText(), this.inputTextArea.getText());
+            this.outputTextArea.setText(outputText);
         } catch (Exception e) {
             Util.showError(e);
         }
