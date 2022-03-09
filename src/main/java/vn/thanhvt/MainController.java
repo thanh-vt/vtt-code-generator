@@ -1,6 +1,12 @@
 package vn.thanhvt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.lang.instrument.Instrumentation;
+import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -15,6 +21,7 @@ import javafx.stage.FileChooser;
 import java.io.File;
 import java.util.Locale;
 import java.util.Map;
+import javax.naming.OperationNotSupportedException;
 
 public class MainController {
 
@@ -135,22 +142,54 @@ public class MainController {
                 throw new RuntimeException("Classname required!");
             }
             Class<?> clazz = this.mainService.getCurrentClassLoader().loadClass(className);
-            System.out.println(clazz.getDeclaredField("maHq"));
             String inputText = this.inputTextArea.getText();
             Map<String, ?> map = this.objectMapper.readValue(inputText, Map.class);
-            System.out.println(map);
-            String varName = className.substring(0, 1).toLowerCase(Locale.ROOT) + className.substring(1);
-            StringBuilder outputBuilder = new StringBuilder(className)
+            String classSimpleName = clazz.getSimpleName();
+            String varName = classSimpleName.substring(0, 1).toLowerCase(Locale.ROOT) + classSimpleName.substring(1);
+            StringBuilder outputBuilder = new StringBuilder(classSimpleName)
                     .append(" ").append(varName)
-                    .append(" = new ").append(className)
+                    .append(" = new ").append(classSimpleName)
                     .append("();\n");
-
+            Map<String, Method> methodMap = new HashMap<>();
+            for (Method method: clazz.getDeclaredMethods()) {
+                methodMap.put(method.getName(), method);
+            }
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
             for (Map.Entry<String, ?> entry : map.entrySet()) {
-                String setter = ".set" + Util.snakeToPascalCase(entry.getKey());
-//                if (clazz.getDeclaredMethod()) // TODO
+                String pascalFieldName = Util.snakeToPascalCase(entry.getKey());
+                String getterName = "get" + pascalFieldName;
+                Method getter = methodMap.get(getterName);
+                if (getter == null) {
+                    continue;
+                }
+                Class<?> fieldType = getter.getReturnType();
+                String val;
+                if (entry.getValue() == null) {
+                    val = "null";
+                } else if (fieldType == String.class) {
+                    val = "\"" + entry.getValue() + "\"";
+                } else if (Number.class.isAssignableFrom(fieldType)) {
+                    if (fieldType == Double.class) {
+                        val = entry.getValue() + "d";
+                    } else if (fieldType == Float.class) {
+                        val = entry.getValue() + "f";
+                    } else if (fieldType == Long.class) {
+                        val = entry.getValue() + "l";
+                    } else if (fieldType == BigDecimal.class) {
+                        val = "new BigDecimal(\"" + entry.getValue() + "\")";
+                    } else {
+                        val = String.valueOf(entry.getValue());
+                    }
+                } else if (fieldType == Date.class) {
+                    Date date = sdf.parse(String.valueOf(entry.getValue()));
+                    val = "new Date(" + date.getTime() + "l) // " + entry.getValue();
+                } else {
+                    throw new OperationNotSupportedException(String.format("Type %s not supported", fieldType.getName()));
+                }
+                String setterName = "set" + pascalFieldName;
                 outputBuilder.append(varName)
-                        .append(setter)
-                        .append("(").append(entry.getValue()).append(");\n");
+                        .append(".").append(setterName)
+                        .append("(").append(val).append(")").append(";\n");
             }
             this.outputTextArea.setText(outputBuilder.toString());
         } catch (Exception e) {
