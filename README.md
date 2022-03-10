@@ -1,2 +1,2 @@
 # json-to-code-generator
-Genrate code tool
+Generate code tool
