@@ -1,12 +1,22 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="App" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="vn.thanhvt.App" />
-    <module name="db-data-to-dto-generator" />
+    <module name="json-to-code-generator" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="vn.thanhvt.*" />
         <option name="ENABLED" value="true" />
       </pattern>
+    </extension>
+    <extension name="net.ashald.envfile">
+      <option name="IS_ENABLED" value="false" />
+      <option name="IS_SUBST" value="false" />
+      <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+      <option name="IS_IGNORE_MISSING_FILES" value="false" />
+      <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+      <ENTRIES>
+        <ENTRY IS_ENABLED="true" PARSER="runconfig" />
+      </ENTRIES>
     </extension>
     <method v="2">
       <option name="Make" enabled="true" />

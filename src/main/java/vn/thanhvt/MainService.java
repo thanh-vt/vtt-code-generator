@@ -15,8 +15,6 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class MainService {
@@ -57,7 +55,8 @@ public class MainService {
         this.currentClassLoader = null;
     }
 
-    public String generate(String className, String inputText) throws OperationNotSupportedException, ParseException, ClassNotFoundException, JsonProcessingException {
+    public String generate(String className, String inputText, JsonNamingStrategy jsonNamingStrategy, boolean isIgnoreNull)
+            throws OperationNotSupportedException, ClassNotFoundException, JsonProcessingException {
         if (className == null || className.trim().isEmpty()) {
             throw new RuntimeException("Classname required!");
         }
@@ -66,7 +65,7 @@ public class MainService {
         String classSimpleName = clazz.getSimpleName();
         String varBaseName = classSimpleName.substring(0, 1).toLowerCase(Locale.ROOT) + classSimpleName.substring(1);
         if (jsonNode.isObject()) {
-            return this.convertObjectNode((ObjectNode) jsonNode, clazz, varBaseName);
+            return this.convertObjectNode((ObjectNode) jsonNode, clazz, varBaseName, jsonNamingStrategy, isIgnoreNull);
         } else if (jsonNode.isArray()) {
             String varListName = varBaseName + "List";
             StringBuilder sb = new StringBuilder();
@@ -78,7 +77,7 @@ public class MainService {
             for (int i = 0; i < jsonNode.size(); i++) {
                 if (arrayNode.get(i).isObject()) {
                     String varName = varBaseName + (i + 1);
-                    sb.append(this.convertObjectNode((ObjectNode) arrayNode.get(i), clazz, varName));
+                    sb.append(this.convertObjectNode((ObjectNode) arrayNode.get(i), clazz, varName, jsonNamingStrategy, isIgnoreNull));
                     sb.append(varListName).append(".add(").append(varName).append(");\n");
                 } else throw new OperationNotSupportedException("Nested array json not supported");
             }
@@ -86,7 +85,8 @@ public class MainService {
         } else throw new OperationNotSupportedException("Unrecognized JSON type");
     }
 
-    private String convertObjectNode(ObjectNode objectNode, Class<?> clazz, String varName) throws ParseException, OperationNotSupportedException {
+    private String convertObjectNode(ObjectNode objectNode, Class<?> clazz, String varName,
+                                     JsonNamingStrategy jsonNamingStrategy, boolean isIgnoreNull) throws OperationNotSupportedException {
 
 //        Map<String, ?> map = this.objectMapper.readValue(inputText, Map.class);
         String classSimpleName = clazz.getSimpleName();
@@ -96,11 +96,11 @@ public class MainService {
                 .append("();\n");
         Map<String, Method> methodMap = new HashMap<>();
         Util.generateMethodMap(clazz, methodMap);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
         Iterator<Map.Entry<String, JsonNode>> fieldIterator = objectNode.fields();
         while (fieldIterator.hasNext()) {
             Map.Entry<String, JsonNode> entry = fieldIterator.next();
-            String pascalFieldName = Util.snakeToPascalCase(entry.getKey());
+            String pascalFieldName = jsonNamingStrategy.getConvertFunction().apply(entry.getKey());
             String getterName = "get" + pascalFieldName;
             Method getter = methodMap.get(getterName);
             if (getter == null) {
@@ -109,6 +109,7 @@ public class MainService {
             Class<?> fieldType = getter.getReturnType();
             String val;
             if (entry.getValue() instanceof NullNode) {
+                if (isIgnoreNull) continue;
                 val = "null";
             } else if (fieldType == String.class) {
                 val = "\"" + entry.getValue().asText() + "\"";
@@ -125,7 +126,7 @@ public class MainService {
                     val = entry.getValue().asText();
                 }
             } else if (fieldType == Date.class) {
-                Date date = sdf.parse(String.valueOf(entry.getValue()));
+                Date date = jsonNamingStrategy.getDate(entry.getValue().asText());
                 val = "new Date(" + date.getTime() + "l)";
             } else {
                 throw new OperationNotSupportedException(String.format("Type %s not supported", fieldType.getName()));
@@ -134,7 +135,7 @@ public class MainService {
             outputBuilder.append(varName)
                     .append(".").append(setterName)
                     .append("(").append(val).append(");");
-            if (entry.getValue() != null && fieldType == Date.class) {
+            if (!(entry.getValue() instanceof NullNode) && fieldType == Date.class) {
                 outputBuilder.append(" // ").append(entry.getValue());
             }
             outputBuilder.append("\n");

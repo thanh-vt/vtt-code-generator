@@ -1,13 +1,14 @@
 package vn.thanhvt;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.jar.Attributes;
+
 import org.springframework.boot.loader.LaunchedURLClassLoader;
 import org.springframework.boot.loader.MainMethodRunner;
 import org.springframework.boot.loader.archive.Archive;
@@ -36,7 +37,49 @@ public abstract class Loader {
         //        String jarMode = System.getProperty("jarmode");
 //        String launchClass = jarMode != null && !jarMode.isEmpty() ? "org.springframework.boot.loader.jarmode.JarModeLauncher" : this.getMainClass();
 //        this.launch(args, launchClass, classLoader);
-        return this.createClassLoader(this.getClassPathArchivesIterator());
+        Iterator<Archive> archivesIterator = this.getClassPathArchivesIterator();
+//        Set<String> entries = new HashSet<>();
+//        for (Archive.Entry entry : this.getArchive()) {
+//            entries.add(entry.getName());
+//            if (entry.isDirectory()) {
+//                System.out.println("Directory: " + entry.getName());
+//            } else {
+//                System.out.println("Entry: " + entry.getName());
+//            }
+//        }
+//        this.extractArchive(archivesIterator, entries);
+//        System.out.println(entries.size());
+        return this.createClassLoader(archivesIterator);
+    }
+
+    public void extractArchive(Iterator<Archive> archiveIterator, Set<String> entries) throws IOException {
+        while (archiveIterator.hasNext()) {
+            Archive archive = archiveIterator.next();
+            if (archive.getManifest() != null) {
+                for (Map.Entry<String, Attributes> entry: archive.getManifest().getEntries().entrySet()) {
+                    System.out.println("Manifest entry: " + entry.getValue() + " - " + entry.getValue());
+                }
+            }
+//            if (archive.isExploded()) {
+//                System.out.println("Sub archive: " + archive.getUrl());
+//
+//            } else {
+//                System.out.println("Archive: " + archive.getUrl());
+//            }
+            System.out.println("Archive: " + archive.getUrl());
+            if (archive.getUrl().toString().endsWith("jar")) {
+                Iterator<Archive> subArchiveIterator = archive.getNestedArchives(null, null);
+                this.extractArchive(subArchiveIterator, entries);
+            }
+            for (Archive.Entry entry : archive) {
+                entries.add(entry.getName());
+                if (entry.isDirectory()) {
+                    System.out.println("Directory: " + entry.getName());
+                } else {
+                    System.out.println("Entry: " + entry.getName());
+                }
+            }
+        }
     }
 
     /** @deprecated */

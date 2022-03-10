@@ -1,27 +1,17 @@
 package vn.thanhvt;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.lang.instrument.Instrumentation;
-import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
+import javafx.util.StringConverter;
 
 import java.io.File;
-import java.util.Locale;
-import java.util.Map;
-import javax.naming.OperationNotSupportedException;
+import java.util.Arrays;
 
 public class MainController {
 
@@ -36,7 +26,6 @@ public class MainController {
 
     @FXML
     private Button clearFileBtn;
-
 
     @FXML
     private Label fileLabel;
@@ -54,7 +43,16 @@ public class MainController {
     private Button unloadBtn;
 
     @FXML
+    private ProgressIndicator loadingProgress;
+
+    @FXML
     private TextField classNameInput;
+
+    @FXML
+    private ChoiceBox<JsonNamingStrategy> jsonNamingChoiceBox;
+
+    @FXML
+    private CheckBox ignoreNullCheckbox;
 
     @FXML
     private TextArea inputTextArea;
@@ -76,6 +74,25 @@ public class MainController {
                 new FileChooser.ExtensionFilter("Web Archive", "*.war")
         );
         this.clearFile(null);
+        this.jsonNamingChoiceBox.setConverter(new StringConverter<JsonNamingStrategy>() {
+
+            @Override
+            public String toString(JsonNamingStrategy object) {
+                return object.getTitle();
+            }
+
+            @Override
+            public JsonNamingStrategy fromString(String string) {
+                return Arrays.stream(JsonNamingStrategy.values())
+                        .filter(e -> e.getTitle().equals(string))
+                        .findFirst()
+                        .orElse(JsonNamingStrategy.CAMEL_CASE);
+            }
+        });
+        ObservableList<JsonNamingStrategy> itemList = FXCollections.observableArrayList();
+        itemList.addAll(JsonNamingStrategy.values());
+        this.jsonNamingChoiceBox.setItems(itemList);
+        this.jsonNamingChoiceBox.setValue(JsonNamingStrategy.SNAKE_CASE);
     }
 
     @FXML
@@ -83,6 +100,8 @@ public class MainController {
         this.fileLabel.setText(DEFAULT_FILE_LABEL);
         this.fileLabelTooltip.setText(DEFAULT_FILE_LABEL);
         this.selectedFile = null;
+        this.loadBtn.setDisable(true);
+        this.unloadBtn.setDisable(true);
     }
 
     @FXML
@@ -94,7 +113,8 @@ public class MainController {
             System.out.printf("File loaded: %s%n", selectedFile.getAbsolutePath());
             this.selectedFile = selectedFile;
         }
-
+        this.loadBtn.setDisable(selectedFile == null);
+        this.unloadBtn.setDisable(true);
     }
 
     @FXML
@@ -109,19 +129,24 @@ public class MainController {
 
     @FXML
     void loadClasses(ActionEvent event) {
-        try {
+        Util.loading(this.loadingProgress, () -> {
             this.mainService.applyConfig(this.selectedFile, this.isSpringCheckbox.isSelected());
             this.setLoaded(true);
-        } catch (Exception e) {
+        }, (e) -> {
             Util.showError(e);
             this.setLoaded(false);
-        }
+        });
     }
 
     @FXML
     void unloadClasses(ActionEvent event) {
-        this.mainService.clearConfig();
-        this.setLoaded(false);
+        Util.loading(this.loadingProgress, () -> {
+            this.mainService.clearConfig();
+            this.setLoaded(false);
+        }, (e) -> {
+            Util.showError(e);
+            this.setLoaded(false);
+        });
     }
 
     void setLoaded(boolean isLoaded) {
@@ -135,7 +160,10 @@ public class MainController {
     @FXML
     void generate(ActionEvent event) {
         try {
-            String outputText = this.mainService.generate(this.classNameInput.getText(), this.inputTextArea.getText());
+            String outputText = this.mainService.generate(this.classNameInput.getText(),
+                    this.inputTextArea.getText(),
+                    this.jsonNamingChoiceBox.getSelectionModel().getSelectedItem(),
+                    this.ignoreNullCheckbox.isSelected());
             this.outputTextArea.setText(outputText);
         } catch (Exception e) {
             Util.showError(e);

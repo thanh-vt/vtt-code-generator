@@ -2,7 +2,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>vn.thanhvt</groupId>
-    <artifactId>db-data-to-dto-generator</artifactId>
+    <artifactId>json-to-code-generator</artifactId>
     <version>1.0-SNAPSHOT</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -13,7 +13,7 @@
         <dependency>
             <groupId>org.kordamp.bootstrapfx</groupId>
             <artifactId>bootstrapfx-core</artifactId>
-            <version>0.4.0</version>
+            <version>0.2.4</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -39,6 +39,7 @@
                 <version>8.8.3</version>
                 <configuration>
                     <vendor>Vissoft</vendor>
+                    <appName>JsonToCodeGenerator</appName>
                     <mainClass>vn.thanhvt.App</mainClass>
                 </configuration>
             </plugin>
