@@ -1,2 +1,2 @@
-# db-data-to-dto-generator
+# json-to-code-generator
 Genrate code tool
