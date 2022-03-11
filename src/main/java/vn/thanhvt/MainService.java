@@ -15,6 +15,7 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.text.ParseException;
 import java.util.*;
 
 public class MainService {
@@ -56,7 +57,7 @@ public class MainService {
     }
 
     public String generate(String className, String inputText, JsonNamingStrategy jsonNamingStrategy, boolean isIgnoreNull)
-            throws OperationNotSupportedException, ClassNotFoundException, JsonProcessingException {
+            throws OperationNotSupportedException, ClassNotFoundException, JsonProcessingException, ParseException {
         if (className == null || className.trim().isEmpty()) {
             throw new RuntimeException("Classname required!");
         }
@@ -86,7 +87,7 @@ public class MainService {
     }
 
     private String convertObjectNode(ObjectNode objectNode, Class<?> clazz, String varName,
-                                     JsonNamingStrategy jsonNamingStrategy, boolean isIgnoreNull) throws OperationNotSupportedException {
+                                     JsonNamingStrategy jsonNamingStrategy, boolean isIgnoreNull) throws OperationNotSupportedException, ParseException {
 
 //        Map<String, ?> map = this.objectMapper.readValue(inputText, Map.class);
         String classSimpleName = clazz.getSimpleName();
