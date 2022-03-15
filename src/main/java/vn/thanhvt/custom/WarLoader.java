@@ -1,4 +1,4 @@
-package vn.thanhvt;
+package vn.thanhvt.custom;
 
 import org.springframework.boot.loader.archive.Archive;
 import org.springframework.boot.loader.archive.Archive.Entry;
@@ -14,7 +14,7 @@ public class WarLoader extends ArchiveLoader {
     public WarLoader() {
     }
 
-    protected WarLoader(Archive archive) {
+    public WarLoader(Archive archive) {
         super(archive);
     }
 

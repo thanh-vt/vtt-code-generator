@@ -1,4 +1,4 @@
-package vn.thanhvt;
+package vn.thanhvt.custom;
 
 @FunctionalInterface
 public interface RunnableWithError {

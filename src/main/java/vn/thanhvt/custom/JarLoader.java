@@ -1,4 +1,4 @@
-package vn.thanhvt;
+package vn.thanhvt.custom;
 
 import java.io.IOException;
 import java.util.jar.Attributes;
@@ -24,7 +24,7 @@ public class JarLoader extends ArchiveLoader {
     public JarLoader() {
     }
 
-    protected JarLoader(Archive archive) {
+    public JarLoader(Archive archive) {
         super(archive);
     }
 

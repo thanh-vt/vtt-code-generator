@@ -1,4 +1,4 @@
-package vn.thanhvt;
+package vn.thanhvt.custom;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +29,7 @@ public abstract class Loader {
     public Loader() {
     }
 
-    protected ClassLoader load() throws Exception {
+    public ClassLoader load() throws Exception {
         if (!this.isExploded()) {
             JarFile.registerUrlProtocolHandler();
         }

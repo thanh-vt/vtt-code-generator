@@ -1,4 +1,4 @@
-package vn.thanhvt;
+package vn.thanhvt.custom;
 
 import java.io.IOException;
 import java.net.URL;

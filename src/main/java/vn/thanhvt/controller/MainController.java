@@ -1,17 +1,37 @@
-package vn.thanhvt;
+package vn.thanhvt.controller;
 
-import javafx.application.Platform;
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.StringConverter;
-
-import java.io.File;
-import java.util.Arrays;
+import vn.thanhvt.App;
+import vn.thanhvt.constant.JsonNamingStrategy;
+import vn.thanhvt.model.Setting;
+import vn.thanhvt.service.MainService;
+import vn.thanhvt.util.ResourceUtil;
+import vn.thanhvt.util.UiUtil;
 
 public class MainController {
 
@@ -61,6 +81,8 @@ public class MainController {
     private TextArea outputTextArea;
 
     private File selectedFile;
+
+    private Setting selectedSetting;
 
     @FXML
     public void initialize() {
@@ -112,6 +134,8 @@ public class MainController {
             this.fileLabelTooltip.setText(selectedFile.getAbsolutePath());
             System.out.printf("File loaded: %s%n", selectedFile.getAbsolutePath());
             this.selectedFile = selectedFile;
+        } else {
+            this.clearFile(event);
         }
         this.loadBtn.setDisable(selectedFile == null);
         this.unloadBtn.setDisable(true);
@@ -129,22 +153,22 @@ public class MainController {
 
     @FXML
     void loadClasses(ActionEvent event) {
-        Util.loading(this.loadingProgress, () -> {
+        UiUtil.loading(this.loadingProgress, () -> {
             this.mainService.applyConfig(this.selectedFile, this.isSpringCheckbox.isSelected());
             this.setLoaded(true);
         }, (e) -> {
-            Util.showError(e);
+            UiUtil.showError(e);
             this.setLoaded(false);
         });
     }
 
     @FXML
     void unloadClasses(ActionEvent event) {
-        Util.loading(this.loadingProgress, () -> {
+        UiUtil.loading(this.loadingProgress, () -> {
             this.mainService.clearConfig();
             this.setLoaded(false);
         }, (e) -> {
-            Util.showError(e);
+            UiUtil.showError(e);
             this.setLoaded(false);
         });
     }
@@ -166,7 +190,28 @@ public class MainController {
                     this.ignoreNullCheckbox.isSelected());
             this.outputTextArea.setText(outputText);
         } catch (Exception e) {
-            Util.showError(e);
+            UiUtil.showError(e);
+        }
+    }
+
+    @FXML
+    void onOpenConfig(ActionEvent event) {
+        try {
+            Stage configStage = new Stage();
+            configStage.initModality(Modality.APPLICATION_MODAL);
+            Scene scene = ResourceUtil.initScene("config", 600, 300);
+            configStage.getIcons().add(new Image(ResourceUtil.getResource("/images/Spr_B2W2_Alder.png")));
+            configStage.setScene(scene);
+            configStage.setTitle("Config");
+            configStage.show();
+            configStage.onCloseRequestProperty().addListener((observable, oldValue, newValue) -> {
+                System.out.println(observable);
+                System.out.println(oldValue);
+                System.out.println( newValue.getClass());
+            });
+            configStage.setOnCloseRequest(event1 -> System.out.println(event1.getSource()));
+        } catch (IOException e) {
+            UiUtil.showError(e);
         }
     }
 

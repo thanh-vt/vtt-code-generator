@@ -4,7 +4,7 @@
     <module name="json-to-code-generator" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="vn.thanhvt.*" />
+        <option name="PATTERN" value="vn.thanhvt.controller.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

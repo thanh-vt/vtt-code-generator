@@ -1,4 +1,4 @@
-package vn.thanhvt;
+package vn.thanhvt.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -6,17 +6,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.springframework.boot.loader.archive.ExplodedArchive;
-import org.springframework.boot.loader.archive.JarFileArchive;
-
-import javax.naming.OperationNotSupportedException;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.text.ParseException;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Map;
+import javax.naming.OperationNotSupportedException;
+import org.springframework.boot.loader.archive.ExplodedArchive;
+import org.springframework.boot.loader.archive.JarFileArchive;
+import vn.thanhvt.custom.JarLoader;
+import vn.thanhvt.constant.JsonNamingStrategy;
+import vn.thanhvt.custom.WarLoader;
 
 public class MainService {
 
@@ -57,7 +62,7 @@ public class MainService {
     }
 
     public String generate(String className, String inputText, JsonNamingStrategy jsonNamingStrategy, boolean isIgnoreNull)
-            throws OperationNotSupportedException, ClassNotFoundException, JsonProcessingException, ParseException {
+            throws OperationNotSupportedException, ClassNotFoundException, JsonProcessingException {
         if (className == null || className.trim().isEmpty()) {
             throw new RuntimeException("Classname required!");
         }
@@ -87,7 +92,7 @@ public class MainService {
     }
 
     private String convertObjectNode(ObjectNode objectNode, Class<?> clazz, String varName,
-                                     JsonNamingStrategy jsonNamingStrategy, boolean isIgnoreNull) throws OperationNotSupportedException, ParseException {
+                                     JsonNamingStrategy jsonNamingStrategy, boolean isIgnoreNull) throws OperationNotSupportedException {
 
 //        Map<String, ?> map = this.objectMapper.readValue(inputText, Map.class);
         String classSimpleName = clazz.getSimpleName();
@@ -96,7 +101,7 @@ public class MainService {
                 .append(" = new ").append(classSimpleName)
                 .append("();\n");
         Map<String, Method> methodMap = new HashMap<>();
-        Util.generateMethodMap(clazz, methodMap);
+        this.generateMethodMap(clazz, methodMap);
 
         Iterator<Map.Entry<String, JsonNode>> fieldIterator = objectNode.fields();
         while (fieldIterator.hasNext()) {
@@ -127,7 +132,8 @@ public class MainService {
                     val = entry.getValue().asText();
                 }
             } else if (fieldType == Date.class) {
-                Date date = jsonNamingStrategy.getDate(entry.getValue().asText());
+//                Date date = jsonNamingStrategy.getDate(entry.getValue().asText()); TODO
+                Date date = new Date();
                 val = "new Date(" + date.getTime() + "l)";
             } else {
                 throw new OperationNotSupportedException(String.format("Type %s not supported", fieldType.getName()));
@@ -144,4 +150,12 @@ public class MainService {
         return outputBuilder.toString();
     }
 
+    private void generateMethodMap(Class<?> clazz, Map<String, Method> methodMap) {
+        for (Method method: clazz.getDeclaredMethods()) {
+            methodMap.put(method.getName(), method);
+        }
+        if (clazz.getSuperclass() != null) {
+            generateMethodMap(clazz.getSuperclass(), methodMap);
+        }
+    }
 }
