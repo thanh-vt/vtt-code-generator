@@ -1,13 +1,15 @@
 package vn.thanhvt.util;
 
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ProgressIndicator;
+import lombok.experimental.UtilityClass;
+import vn.thanhvt.custom.RunnableWithError;
+
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.function.Consumer;
-import javafx.application.Platform;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ProgressIndicator;
-import vn.thanhvt.custom.RunnableWithError;
 
 /**
  * @author pysga
@@ -15,10 +17,11 @@ import vn.thanhvt.custom.RunnableWithError;
  * @project json-to-code-generator
  * @since 1.0
  **/
+@UtilityClass
 public class UiUtil {
 
-    public static void loading(
-        ProgressIndicator progressIndicator, RunnableWithError runnable, Consumer<Exception> errorHandler) {
+    public void loading(
+            ProgressIndicator progressIndicator, RunnableWithError runnable, Consumer<Exception> errorHandler) {
         Timer timer = new Timer();
         System.out.println("Start time: " + new Date());
         progressIndicator.setVisible(true);
@@ -37,7 +40,7 @@ public class UiUtil {
         }, 500);
     }
 
-    public static void showError(Exception e) {
+    public void showError(Exception e) {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
@@ -49,10 +52,10 @@ public class UiUtil {
             int max = 0;
             for (StackTraceElement stackTraceElement : e.getStackTrace()) {
                 sb.append(stackTraceElement.getFileName())
-                    .append(" (line ").append(stackTraceElement.getLineNumber())
-                    .append("): ").append(stackTraceElement.getClassName())
-                    .append(".").append(stackTraceElement.getMethodName())
-                    .append("\n");
+                        .append(" (line ").append(stackTraceElement.getLineNumber())
+                        .append("): ").append(stackTraceElement.getClassName())
+                        .append(".").append(stackTraceElement.getMethodName())
+                        .append("\n");
                 if (max >= 10) {
                     sb.append("...");
                     break;
@@ -60,9 +63,31 @@ public class UiUtil {
                 max++;
             }
             alert.setContentText(sb.toString());
-            alert.setWidth(600);
-            alert.setHeight(400);
+            alert.setWidth(800);
+            alert.setHeight(600);
             alert.showAndWait();
         });
     }
+
+    public void showDialog(String msg, String title, Alert.AlertType type) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(type);
+            alert.setTitle(title);
+            // Header Text: null
+            alert.setHeaderText(null);
+            alert.setContentText(msg);
+            alert.setWidth(800);
+            alert.setHeight(600);
+            alert.showAndWait();
+        });
+    }
+
+    public void showInfo(String msg) {
+        showDialog(msg, "Information", Alert.AlertType.INFORMATION);
+    }
+
+    public void showWarning(String msg) {
+        showDialog(msg, "Warning", Alert.AlertType.WARNING);
+    }
+
 }

@@ -1,13 +1,13 @@
 package vn.thanhvt.model;
 
-import java.text.SimpleDateFormat;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
 import lombok.Builder;
 import lombok.Data;
 import vn.thanhvt.constant.AppConstant;
 import vn.thanhvt.constant.JsonNamingStrategy;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * @author pysga
@@ -23,32 +23,67 @@ public class Setting {
 
     private final String dateFormat;
 
-    private final SimpleDateFormat cachedSdf;
+    private SimpleDateFormat cachedSdf;
 
-    private List<SimpleDateFormat> sdfPool;
+    private Map<String, SimpleDateFormat> sdfPool;
 
     private final boolean ignoreNull;
 
-    public Setting getSetting(JsonNamingStrategy jsonNamingStrategy, boolean ignoreNull, Set<String> dfList) {
-        this.sdfPool = new LinkedList<>();
-        for (String df: dfList) {
-            this.sdfPool.add(new SimpleDateFormat(df));
+    public static Setting from(JsonNamingStrategy jsonNamingStrategy, boolean ignoreNull, String dateFormat, Set<String> dfList) {
+        Map<String, SimpleDateFormat> sdfPool = new LinkedHashMap<>();
+        for (String df : dfList) {
+            SimpleDateFormat sdf = new SimpleDateFormat(df);
+            sdf.setLenient(false);
+            sdfPool.put(df, sdf);
         }
         return Setting.builder()
-            .jsonNamingStrategy(jsonNamingStrategy)
-            .ignoreNull(ignoreNull)
-            .build();
+                .jsonNamingStrategy(jsonNamingStrategy)
+                .ignoreNull(ignoreNull)
+                .sdfPool(sdfPool)
+                .dateFormat(dateFormat)
+                .build();
     }
 
-    public Setting getDefaultSetting() {
-        this.sdfPool = new LinkedList<>();
-        for (String df: AppConstant.DEFAULT_DATE_FORMAT_LIST) {
-            this.sdfPool.add(new SimpleDateFormat(df));
+    public static Setting getDefaultSetting() {
+        Map<String, SimpleDateFormat> sdfPool = new LinkedHashMap<>();
+        for (String df : AppConstant.DEFAULT_DATE_FORMAT_LIST) {
+            SimpleDateFormat sdf = new SimpleDateFormat(df);
+            sdf.setLenient(false);
+            sdfPool.put(df, sdf);
         }
         return Setting.builder()
-            .jsonNamingStrategy(JsonNamingStrategy.SNAKE_CASE)
-            .ignoreNull(true)
-            .build();
+                .jsonNamingStrategy(JsonNamingStrategy.SNAKE_CASE)
+                .ignoreNull(true)
+                .sdfPool(sdfPool)
+                .build();
+    }
+
+    public Date parseDate(String inputTxt) throws ParseException {
+        Iterator<SimpleDateFormat> sdfIterator = this.sdfPool.values().iterator();
+        ParseException lastEx = null;
+        if (this.cachedSdf != null) {
+            try {
+                return this.tryParse(inputTxt, sdfIterator.next());
+            } catch (ParseException e) {
+                lastEx = e;
+            }
+        }
+        while (sdfIterator.hasNext()) {
+            try {
+                SimpleDateFormat nextSdf = sdfIterator.next();
+                if (nextSdf == this.cachedSdf) continue;
+                this.cachedSdf = nextSdf;
+                return this.tryParse(inputTxt, this.cachedSdf);
+            } catch (ParseException e) {
+                lastEx = e;
+            }
+        }
+        if (lastEx != null) throw lastEx;
+        throw new RuntimeException("No formatters found");
+    }
+
+    private Date tryParse(String inputTxt, SimpleDateFormat sdf) throws ParseException {
+        return sdf.parse(inputTxt);
     }
 
 }

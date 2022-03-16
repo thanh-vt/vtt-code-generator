@@ -6,22 +6,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.springframework.boot.loader.archive.ExplodedArchive;
+import org.springframework.boot.loader.archive.JarFileArchive;
+import vn.thanhvt.custom.JarLoader;
+import vn.thanhvt.custom.WarLoader;
+import vn.thanhvt.model.Setting;
+
+import javax.naming.OperationNotSupportedException;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
-import javax.naming.OperationNotSupportedException;
-import org.springframework.boot.loader.archive.ExplodedArchive;
-import org.springframework.boot.loader.archive.JarFileArchive;
-import vn.thanhvt.custom.JarLoader;
-import vn.thanhvt.constant.JsonNamingStrategy;
-import vn.thanhvt.custom.WarLoader;
+import java.text.ParseException;
+import java.util.*;
 
 public class MainService {
 
@@ -61,8 +59,8 @@ public class MainService {
         this.currentClassLoader = null;
     }
 
-    public String generate(String className, String inputText, JsonNamingStrategy jsonNamingStrategy, boolean isIgnoreNull)
-            throws OperationNotSupportedException, ClassNotFoundException, JsonProcessingException {
+    public String generate(String className, String inputText, Setting setting)
+            throws OperationNotSupportedException, ClassNotFoundException, JsonProcessingException, ParseException {
         if (className == null || className.trim().isEmpty()) {
             throw new RuntimeException("Classname required!");
         }
@@ -71,7 +69,7 @@ public class MainService {
         String classSimpleName = clazz.getSimpleName();
         String varBaseName = classSimpleName.substring(0, 1).toLowerCase(Locale.ROOT) + classSimpleName.substring(1);
         if (jsonNode.isObject()) {
-            return this.convertObjectNode((ObjectNode) jsonNode, clazz, varBaseName, jsonNamingStrategy, isIgnoreNull);
+            return this.convertObjectNode((ObjectNode) jsonNode, clazz, varBaseName, setting);
         } else if (jsonNode.isArray()) {
             String varListName = varBaseName + "List";
             StringBuilder sb = new StringBuilder();
@@ -83,7 +81,7 @@ public class MainService {
             for (int i = 0; i < jsonNode.size(); i++) {
                 if (arrayNode.get(i).isObject()) {
                     String varName = varBaseName + (i + 1);
-                    sb.append(this.convertObjectNode((ObjectNode) arrayNode.get(i), clazz, varName, jsonNamingStrategy, isIgnoreNull));
+                    sb.append(this.convertObjectNode((ObjectNode) arrayNode.get(i), clazz, varName, setting));
                     sb.append(varListName).append(".add(").append(varName).append(");\n");
                 } else throw new OperationNotSupportedException("Nested array json not supported");
             }
@@ -92,7 +90,7 @@ public class MainService {
     }
 
     private String convertObjectNode(ObjectNode objectNode, Class<?> clazz, String varName,
-                                     JsonNamingStrategy jsonNamingStrategy, boolean isIgnoreNull) throws OperationNotSupportedException {
+                                     Setting setting) throws OperationNotSupportedException, ParseException {
 
 //        Map<String, ?> map = this.objectMapper.readValue(inputText, Map.class);
         String classSimpleName = clazz.getSimpleName();
@@ -106,7 +104,7 @@ public class MainService {
         Iterator<Map.Entry<String, JsonNode>> fieldIterator = objectNode.fields();
         while (fieldIterator.hasNext()) {
             Map.Entry<String, JsonNode> entry = fieldIterator.next();
-            String pascalFieldName = jsonNamingStrategy.getConvertFunction().apply(entry.getKey());
+            String pascalFieldName = setting.getJsonNamingStrategy().getConvertFunction().apply(entry.getKey());
             String getterName = "get" + pascalFieldName;
             Method getter = methodMap.get(getterName);
             if (getter == null) {
@@ -115,7 +113,7 @@ public class MainService {
             Class<?> fieldType = getter.getReturnType();
             String val;
             if (entry.getValue() instanceof NullNode) {
-                if (isIgnoreNull) continue;
+                if (setting.isIgnoreNull()) continue;
                 val = "null";
             } else if (fieldType == String.class) {
                 val = "\"" + entry.getValue().asText() + "\"";
@@ -132,8 +130,7 @@ public class MainService {
                     val = entry.getValue().asText();
                 }
             } else if (fieldType == Date.class) {
-//                Date date = jsonNamingStrategy.getDate(entry.getValue().asText()); TODO
-                Date date = new Date();
+                Date date = setting.parseDate(entry.getValue().asText());
                 val = "new Date(" + date.getTime() + "l)";
             } else {
                 throw new OperationNotSupportedException(String.format("Type %s not supported", fieldType.getName()));
@@ -158,4 +155,5 @@ public class MainService {
             generateMethodMap(clazz.getSuperclass(), methodMap);
         }
     }
+
 }

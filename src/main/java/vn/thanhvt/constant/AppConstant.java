@@ -1,9 +1,10 @@
 package vn.thanhvt.constant;
 
+import lombok.experimental.UtilityClass;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import lombok.experimental.UtilityClass;
 
 /**
  * @author pysga
@@ -18,10 +19,11 @@ public class AppConstant {
 
     static {
         List<String> defaultDfList = Arrays.asList(
-            "yyy-MM-dd'T'HH:mm:ssXXX",
-            "yyyy-MM-dd'T'HH:mm:ss.S",
-            "dd-MM-yyyy HH:mm:ss",
-            "dd-MM-yyyy"
+                "yyyy-MM-dd'T'HH:mm:ssXXX",
+                "yyyy-MM-dd'T'HH:mm:ss.S",
+                "yyyy-MM-dd HH:mm:ss",
+                "dd-MM-yyyy HH:mm:ss",
+                "dd-MM-yyyy"
         );
         DEFAULT_DATE_FORMAT_LIST = Collections.unmodifiableList(defaultDfList);
     }

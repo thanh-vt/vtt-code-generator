@@ -1,37 +1,19 @@
 package vn.thanhvt.controller;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
-import javafx.scene.image.Image;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
-import javafx.util.StringConverter;
 import vn.thanhvt.App;
-import vn.thanhvt.constant.JsonNamingStrategy;
 import vn.thanhvt.model.Setting;
 import vn.thanhvt.service.MainService;
 import vn.thanhvt.util.ResourceUtil;
 import vn.thanhvt.util.UiUtil;
+
+import java.io.File;
+import java.io.IOException;
 
 public class MainController {
 
@@ -69,12 +51,6 @@ public class MainController {
     private TextField classNameInput;
 
     @FXML
-    private ChoiceBox<JsonNamingStrategy> jsonNamingChoiceBox;
-
-    @FXML
-    private CheckBox ignoreNullCheckbox;
-
-    @FXML
     private TextArea inputTextArea;
 
     @FXML
@@ -82,7 +58,7 @@ public class MainController {
 
     private File selectedFile;
 
-    private Setting selectedSetting;
+    private Setting selectedSetting = Setting.getDefaultSetting();
 
     @FXML
     public void initialize() {
@@ -96,25 +72,6 @@ public class MainController {
                 new FileChooser.ExtensionFilter("Web Archive", "*.war")
         );
         this.clearFile(null);
-        this.jsonNamingChoiceBox.setConverter(new StringConverter<JsonNamingStrategy>() {
-
-            @Override
-            public String toString(JsonNamingStrategy object) {
-                return object.getTitle();
-            }
-
-            @Override
-            public JsonNamingStrategy fromString(String string) {
-                return Arrays.stream(JsonNamingStrategy.values())
-                        .filter(e -> e.getTitle().equals(string))
-                        .findFirst()
-                        .orElse(JsonNamingStrategy.CAMEL_CASE);
-            }
-        });
-        ObservableList<JsonNamingStrategy> itemList = FXCollections.observableArrayList();
-        itemList.addAll(JsonNamingStrategy.values());
-        this.jsonNamingChoiceBox.setItems(itemList);
-        this.jsonNamingChoiceBox.setValue(JsonNamingStrategy.SNAKE_CASE);
     }
 
     @FXML
@@ -186,8 +143,7 @@ public class MainController {
         try {
             String outputText = this.mainService.generate(this.classNameInput.getText(),
                     this.inputTextArea.getText(),
-                    this.jsonNamingChoiceBox.getSelectionModel().getSelectedItem(),
-                    this.ignoreNullCheckbox.isSelected());
+                    this.selectedSetting);
             this.outputTextArea.setText(outputText);
         } catch (Exception e) {
             UiUtil.showError(e);
@@ -197,20 +153,27 @@ public class MainController {
     @FXML
     void onOpenConfig(ActionEvent event) {
         try {
-            Stage configStage = new Stage();
-            configStage.initModality(Modality.APPLICATION_MODAL);
-            Scene scene = ResourceUtil.initScene("config", 600, 300);
-            configStage.getIcons().add(new Image(ResourceUtil.getResource("/images/Spr_B2W2_Alder.png")));
-            configStage.setScene(scene);
-            configStage.setTitle("Config");
-            configStage.show();
-            configStage.onCloseRequestProperty().addListener((observable, oldValue, newValue) -> {
-                System.out.println(observable);
-                System.out.println(oldValue);
-                System.out.println( newValue.getClass());
+            Dialog<Setting> settingDialog = ResourceUtil.<Setting, ConfigController>initDialog("config", (dialog, controller) -> {
+                controller.setOnActionHandler((buttonData, setting) -> {
+                    switch (buttonData) {
+                        case OK_DONE:
+                            this.selectedSetting = setting;
+                            dialog.close();
+                            break;
+                        case APPLY:
+                            this.selectedSetting = setting;
+                            break;
+                        case CANCEL_CLOSE:
+                            dialog.close();
+                            break;
+                    }
+                });
+                controller.initSetting(this.selectedSetting);
             });
-            configStage.setOnCloseRequest(event1 -> System.out.println(event1.getSource()));
-        } catch (IOException e) {
+            settingDialog.initModality(Modality.APPLICATION_MODAL);
+            settingDialog.setTitle("Config");
+            settingDialog.showAndWait();
+        } catch (IOException | InstantiationException | IllegalAccessException e) {
             UiUtil.showError(e);
         }
     }
