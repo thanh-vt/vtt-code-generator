@@ -22,8 +22,8 @@ public class App extends Application {
         stage.setScene(scene);
         stage.setWidth(1280);
         stage.setHeight(800);
-        stage.setMinWidth(600);
-        stage.setMinHeight(400);
+        stage.setMinWidth(800);
+        stage.setMinHeight(640);
         stage.setTitle("JSON TO INIT CODE GENERATOR");
         stage.show();
         mainStage = stage;

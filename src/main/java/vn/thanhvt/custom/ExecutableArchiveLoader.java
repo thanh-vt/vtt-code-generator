@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.jar.Manifest;
+import org.springframework.boot.loader.WarLauncher;
 import org.springframework.boot.loader.archive.Archive;
 import org.springframework.boot.loader.archive.Archive.Entry;
 import org.springframework.boot.loader.archive.Archive.EntryFilter;
@@ -16,14 +17,14 @@ import org.springframework.boot.loader.archive.Archive.EntryFilter;
  * @project db-data-to-dto-generator
  * @since 1.0
  **/
-public abstract class ArchiveLoader extends Loader {
+public abstract class ExecutableArchiveLoader extends Loader {
 
     private static final String START_CLASS_ATTRIBUTE = "Start-Class";
     protected static final String BOOT_CLASSPATH_INDEX_ATTRIBUTE = "Spring-Boot-Classpath-Index";
     private final Archive archive;
     private final CustomClassPathIndexFile classPathIndex;
 
-    public ArchiveLoader() {
+    public ExecutableArchiveLoader() {
         try {
             this.archive = this.createArchive();
             this.classPathIndex = this.getClassPathIndex(this.archive);
@@ -32,7 +33,7 @@ public abstract class ArchiveLoader extends Loader {
         }
     }
 
-    protected ArchiveLoader(Archive archive) {
+    protected ExecutableArchiveLoader(Archive archive) {
         try {
             this.archive = archive;
             this.classPathIndex = this.getClassPathIndex(this.archive);

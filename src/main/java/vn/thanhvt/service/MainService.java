@@ -6,20 +6,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.springframework.boot.loader.archive.ExplodedArchive;
-import org.springframework.boot.loader.archive.JarFileArchive;
-import vn.thanhvt.custom.JarLoader;
-import vn.thanhvt.custom.WarLoader;
-import vn.thanhvt.model.Setting;
-
-import javax.naming.OperationNotSupportedException;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.text.ParseException;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import javax.naming.OperationNotSupportedException;
+import org.springframework.boot.loader.archive.JarFileArchive;
+import vn.thanhvt.custom.JarLoader;
+import vn.thanhvt.custom.SimpleJarLoader;
+import vn.thanhvt.custom.WarLoader;
+import vn.thanhvt.model.Setting;
 
 public class MainService {
 
@@ -31,28 +34,20 @@ public class MainService {
         return currentClassLoader != null ? currentClassLoader : this.getClass().getClassLoader();
     }
 
-    public void applyConfig(File f, boolean isSpring) throws Exception {
+    public Set<String> applyConfig(File f, boolean isSpring) throws Exception {
+        Set<String> loadedSourceClassNames = new HashSet<>();
         if (isSpring) {
             if (f.getName().endsWith(".jar")) {
-                this.currentClassLoader = new JarLoader(new JarFileArchive(f)).load();
+                this.currentClassLoader = new JarLoader(new JarFileArchive(f)).load(loadedSourceClassNames);
             } else if (f.getName().endsWith(".war")) {
-                this.currentClassLoader = new WarLoader(new ExplodedArchive(f)).load();
+                this.currentClassLoader = new WarLoader(new JarFileArchive(f)).load(loadedSourceClassNames);
             } else {
                 throw new OperationNotSupportedException("This file extension is not supported");
             }
         } else {
-            this.currentClassLoader = new URLClassLoader(new URL[]{f.toURI().toURL()});
+            this.currentClassLoader = new SimpleJarLoader(f).load(loadedSourceClassNames);
         }
-//
-//        Class<?> clazz = Class.forName("vn.etc.customs.ektt.dto.KtBangkeNhantuKhobacDto", true, this.currentClassLoader);
-//
-//        ImmutableSet<ClassInfo> classes = ClassPath.from(this.currentClassLoader).getAllClasses();
-//        Iterator<ClassPath.ClassInfo> iterator = classes.stream().iterator();
-//        while (iterator.hasNext()) {
-//            ClassInfo classInfo = iterator.next();
-//            System.out.println(classInfo.getName());
-//        }
-//        System.out.println(clazz.getSimpleName());
+        return loadedSourceClassNames;
     }
 
     public void clearConfig() {

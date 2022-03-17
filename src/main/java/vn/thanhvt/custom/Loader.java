@@ -7,7 +7,6 @@ import java.net.URL;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.*;
-import java.util.jar.Attributes;
 
 import org.springframework.boot.loader.LaunchedURLClassLoader;
 import org.springframework.boot.loader.MainMethodRunner;
@@ -29,7 +28,7 @@ public abstract class Loader {
     public Loader() {
     }
 
-    public ClassLoader load() throws Exception {
+    public ClassLoader load(Set<String> loadedSourceClassNames) throws Exception {
         if (!this.isExploded()) {
             JarFile.registerUrlProtocolHandler();
         }
@@ -38,49 +37,29 @@ public abstract class Loader {
 //        String launchClass = jarMode != null && !jarMode.isEmpty() ? "org.springframework.boot.loader.jarmode.JarModeLauncher" : this.getMainClass();
 //        this.launch(args, launchClass, classLoader);
         Iterator<Archive> archivesIterator = this.getClassPathArchivesIterator();
-//        Set<String> entries = new HashSet<>();
-//        for (Archive.Entry entry : this.getArchive()) {
-//            entries.add(entry.getName());
-//            if (entry.isDirectory()) {
-//                System.out.println("Directory: " + entry.getName());
-//            } else {
-//                System.out.println("Entry: " + entry.getName());
-//            }
-//        }
-//        this.extractArchive(archivesIterator, entries);
-//        System.out.println(entries.size());
+        for (Archive.Entry entry : this.getArchive()) {
+            String className = this.checkIsSourceClass(entry);
+            if (className != null) {
+                loadedSourceClassNames.add(className);
+            }
+        }
+        this.extractArchive(archivesIterator, loadedSourceClassNames);
         return this.createClassLoader(archivesIterator);
     }
 
     public void extractArchive(Iterator<Archive> archiveIterator, Set<String> entries) throws IOException {
         while (archiveIterator.hasNext()) {
             Archive archive = archiveIterator.next();
-            if (archive.getManifest() != null) {
-                for (Map.Entry<String, Attributes> entry: archive.getManifest().getEntries().entrySet()) {
-                    System.out.println("Manifest entry: " + entry.getValue() + " - " + entry.getValue());
-                }
-            }
-//            if (archive.isExploded()) {
-//                System.out.println("Sub archive: " + archive.getUrl());
-//
-//            } else {
-//                System.out.println("Archive: " + archive.getUrl());
-//            }
-            System.out.println("Archive: " + archive.getUrl());
-            if (archive.getUrl().toString().endsWith("jar")) {
-                Iterator<Archive> subArchiveIterator = archive.getNestedArchives(null, null);
-                this.extractArchive(subArchiveIterator, entries);
-            }
             for (Archive.Entry entry : archive) {
-                entries.add(entry.getName());
-                if (entry.isDirectory()) {
-                    System.out.println("Directory: " + entry.getName());
-                } else {
-                    System.out.println("Entry: " + entry.getName());
+                String className = this.checkIsSourceClass(entry);
+                if (className != null) {
+                    entries.add(className);
                 }
             }
         }
     }
+
+    protected abstract String checkIsSourceClass(Archive.Entry entry);
 
     /** @deprecated */
     @Deprecated

@@ -1,23 +1,28 @@
 package vn.thanhvt.controller;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Set;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
+import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
 import vn.thanhvt.App;
 import vn.thanhvt.model.Setting;
 import vn.thanhvt.service.MainService;
 import vn.thanhvt.util.ResourceUtil;
 import vn.thanhvt.util.UiUtil;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 public class MainController {
 
@@ -54,6 +59,8 @@ public class MainController {
     @FXML
     private TextField classNameInput;
 
+    private AutoCompletionBinding<String> autoCompletionBinding;
+
     @FXML
     private TextArea inputTextArea;
 
@@ -68,23 +75,14 @@ public class MainController {
     public void initialize() {
         this.fileChooser.setTitle("Select jar file");
         this.fileChooser.setInitialDirectory(
-                new File(System.getProperty("user.home"))
+            new File(System.getProperty("user.home"))
         );
         this.fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("All file", "*.jar", "*.war"),
-                new FileChooser.ExtensionFilter("Java Archive", "*.jar"),
-                new FileChooser.ExtensionFilter("Web Archive", "*.war")
+            new FileChooser.ExtensionFilter("All file", "*.jar", "*.war"),
+            new FileChooser.ExtensionFilter("Java Archive", "*.jar"),
+            new FileChooser.ExtensionFilter("Web Archive", "*.war")
         );
         this.clearFile(null);
-        Set<String> suggestionSet = new HashSet<>(
-                Arrays.asList(
-                        "vn.etc.customs.ektt.dto.KtHosoDto",
-                        "vn.etc.customs.ektt.dto.KtHosoCtDto",
-                        "vn.etc.customs.ektt.dto.KtBangkeNhantuKhobacDto",
-                        "vn.etc.customs.ektt.dto.KtBangkeNhantuKhobacCtDto"
-                )
-        );
-        TextFields.bindAutoCompletion(this.classNameInput, suggestionSet).setMinWidth(500);
     }
 
     @FXML
@@ -124,7 +122,12 @@ public class MainController {
     @FXML
     void loadClasses(ActionEvent event) {
         UiUtil.loading(this.loadingProgress, () -> {
-            this.mainService.applyConfig(this.selectedFile, this.isSpringCheckbox.isSelected());
+            Set<String> loadedSourceClassNames = this.mainService
+                .applyConfig(this.selectedFile, this.isSpringCheckbox.isSelected());
+            this.autoCompletionBinding = TextFields
+                .bindAutoCompletion(this.classNameInput, loadedSourceClassNames);
+            autoCompletionBinding.setVisibleRowCount(10);
+            autoCompletionBinding.setMinWidth(500);
             this.setLoaded(true);
         }, (e) -> {
             UiUtil.showError(e);
@@ -136,6 +139,7 @@ public class MainController {
     void unloadClasses(ActionEvent event) {
         UiUtil.loading(this.loadingProgress, () -> {
             this.mainService.clearConfig();
+            this.autoCompletionBinding.dispose();
             this.setLoaded(false);
         }, (e) -> {
             UiUtil.showError(e);
@@ -155,8 +159,8 @@ public class MainController {
     void generate(ActionEvent event) {
         try {
             String outputText = this.mainService.generate(this.classNameInput.getText(),
-                    this.inputTextArea.getText(),
-                    this.selectedSetting);
+                this.inputTextArea.getText(),
+                this.selectedSetting);
             this.outputTextArea.setText(outputText);
         } catch (Exception e) {
             UiUtil.showError(e);
@@ -166,23 +170,24 @@ public class MainController {
     @FXML
     void onOpenConfig(ActionEvent event) {
         try {
-            Dialog<Setting> settingDialog = ResourceUtil.<Setting, ConfigController>initDialog("config", (dialog, controller) -> {
-                controller.setOnActionHandler((buttonData, setting) -> {
-                    switch (buttonData) {
-                        case OK_DONE:
-                            this.selectedSetting = setting;
-                            dialog.close();
-                            break;
-                        case APPLY:
-                            this.selectedSetting = setting;
-                            break;
-                        case CANCEL_CLOSE:
-                            dialog.close();
-                            break;
-                    }
+            Dialog<Setting> settingDialog = ResourceUtil
+                .<Setting, ConfigController>initDialog("config", (dialog, controller) -> {
+                    controller.setOnActionHandler((buttonData, setting) -> {
+                        switch (buttonData) {
+                            case OK_DONE:
+                                this.selectedSetting = setting;
+                                dialog.close();
+                                break;
+                            case APPLY:
+                                this.selectedSetting = setting;
+                                break;
+                            case CANCEL_CLOSE:
+                                dialog.close();
+                                break;
+                        }
+                    });
+                    controller.initSetting(this.selectedSetting);
                 });
-                controller.initSetting(this.selectedSetting);
-            });
             settingDialog.initModality(Modality.APPLICATION_MODAL);
             settingDialog.setTitle("Config");
             settingDialog.showAndWait();

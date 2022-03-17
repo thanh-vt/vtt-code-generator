@@ -14,7 +14,7 @@ import org.springframework.boot.loader.archive.ExplodedArchive;
  * @project db-data-to-dto-generator
  * @since 1.0
  **/
-public class JarLoader extends ArchiveLoader {
+public class JarLoader extends ExecutableArchiveLoader {
 
     private static final String DEFAULT_CLASSPATH_INDEX_LOCATION = "BOOT-INF/classpath.idx";
     static final EntryFilter NESTED_ARCHIVE_ENTRY_FILTER = (entry) -> {
@@ -26,6 +26,17 @@ public class JarLoader extends ArchiveLoader {
 
     public JarLoader(Archive archive) {
         super(archive);
+    }
+
+    @Override
+    protected String checkIsSourceClass(Archive.Entry entry) {
+        if (entry.getName().startsWith("BOOT-INF/classes/") && entry.getName().endsWith(".class")) {
+            return entry.getName()
+                .replace("BOOT-INF/classes/", "")
+                .replace("/", ".")
+                .replace(".class", "");
+        }
+        return null;
     }
 
     protected CustomClassPathIndexFile getClassPathIndex(Archive archive) throws IOException {

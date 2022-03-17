@@ -9,13 +9,24 @@ import org.springframework.boot.loader.archive.Archive.Entry;
  * @project db-data-to-dto-generator
  * @since 1.0
  **/
-public class WarLoader extends ArchiveLoader {
+public class WarLoader extends ExecutableArchiveLoader {
 
     public WarLoader() {
     }
 
     public WarLoader(Archive archive) {
         super(archive);
+    }
+
+    @Override
+    protected String checkIsSourceClass(Archive.Entry entry) {
+        if (entry.getName().startsWith("WEB-INF/classes/") && entry.getName().endsWith(".class")) {
+            return entry.getName()
+                .replace("WEB-INF/classes/", "")
+                .replace("/", ".")
+                .replace(".class", "");
+        }
+        return null;
     }
 
     protected boolean isPostProcessingClassPathArchives() {

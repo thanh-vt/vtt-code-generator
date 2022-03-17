@@ -23,7 +23,7 @@
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 
-<VBox xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vn.thanhvt.controller.MainController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vn.thanhvt.controller.MainController">
     <children>
         <MenuBar VBox.vgrow="NEVER">
             <menus>
@@ -77,83 +77,87 @@
                         <String fx:value="b" />
                      </styleClass>
                         </Label>
-                        <FlowPane hgap="10.0" layoutX="-100.0" layoutY="48.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="55.0">
-                            <children>
-                                <Button fx:id="browseFileBtn" mnemonicParsing="false" onAction="#openFileBrowser" text="Select Archive file">
-                                    <styleClass>
-                                        <String fx:value="btn" />
-                                        <String fx:value="btn-default" />
-                              <String fx:value="btn-sm" />
-                                    </styleClass>
-                                </Button>
-                                <Button fx:id="clearFileBtn" mnemonicParsing="false" onAction="#clearFile" text="Clear">
-                                    <styleClass>
-                                        <String fx:value="btn" />
-                                        <String fx:value="btn-default" />
-                              <String fx:value="btn-sm" />
-                                    </styleClass>
-                                </Button>
-                                <Label fx:id="fileLabel" onMouseEntered="#showTooltip" onMouseExited="#hideTooltip" styleClass="i" text="No file selected">
-                                    <tooltip>
-                                        <Tooltip fx:id="fileLabelTooltip" text="No file selected" />
-                                    </tooltip>
-                                </Label>
-                            </children>
-                            <opaqueInsets>
-                                <Insets />
-                            </opaqueInsets>
-                        </FlowPane>
-                        <FlowPane hgap="10.0" layoutX="30.0" layoutY="92.0" prefHeight="18.0" prefWidth="200.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="95.0">
-                            <children>
-                                <CheckBox fx:id="isSpringCheckbox" mnemonicParsing="false" styleClass="i" text="Is Spring archive?" />
-                                <Button fx:id="loadBtn" disable="true" mnemonicParsing="false" onAction="#loadClasses" text="Load classes">
-                           <styleClass>
-                              <String fx:value="btn" />
-                              <String fx:value="btn-primary" />
-                              <String fx:value="btn-sm" />
-                           </styleClass></Button>
-                                <Button fx:id="unloadBtn" disable="true" mnemonicParsing="false" onAction="#unloadClasses" text="Unload classes" userData="loz">
-                           <styleClass>
-                              <String fx:value="btn" />
-                              <String fx:value="btn-danger" />
-                              <String fx:value="btn-sm" />
-                           </styleClass></Button>
-                                <ProgressIndicator fx:id="loadingProgress" disable="true" prefHeight="25.0" prefWidth="25.0" visible="false" />
-                            </children>
-                        </FlowPane>
-                        <FlowPane hgap="10.0" prefHeight="27.0" prefWidth="418.0" vgap="10.0" AnchorPane.bottomAnchor="339.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="200.0" />
-                        <TextArea fx:id="inputTextArea" layoutY="180.0" prefHeight="350.0" style="-fx-control-inner-background: #000000; -fx-text-fill: yellow;" styleClass="code" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" />
-                        <FlowPane hgap="10.0" layoutX="30.0" layoutY="140.0" orientation="VERTICAL" prefHeight="27.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="140.0">
-                            <children>
-                                <Label alignment="CENTER" prefHeight="25.0" styleClass="b" text="Class Name" />
-                              <TextField fx:id="classNameInput" />
-                        <Button mnemonicParsing="false" onAction="#onOpenConfig" style="-fx-text-fill: white;" text="Config">
-                           <styleClass>
-                              <String fx:value="btn" />
-                              <String fx:value="btn-secondary" />
-                              <String fx:value="btn-sm" />
-                           </styleClass>
-                        </Button>
-                                <Button mnemonicParsing="false" onAction="#generate" text="Generate">
-                                    <styleClass>
-                                        <String fx:value="btn" />
-                                        <String fx:value="btn-info" />
-                              <String fx:value="btn-sm" />
-                                    </styleClass>
-                                </Button>
-                            </children>
-                        </FlowPane>
-                  <FlowPane hgap="10.0" layoutX="30.0" layoutY="177.0" prefWidth="386.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="180.0" />
+                  <VBox layoutX="14.0" layoutY="154.0" prefHeight="671.0" prefWidth="576.0" spacing="10.0" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="50.0">
+                     <children>
+                              <FlowPane hgap="10.0" prefHeight="28.0" prefWidth="573.0">
+                                  <children>
+                                      <Button fx:id="browseFileBtn" mnemonicParsing="false" onAction="#openFileBrowser" text="Select Archive file">
+                                          <styleClass>
+                                              <String fx:value="btn" />
+                                              <String fx:value="btn-default" />
+                                    <String fx:value="btn-sm" />
+                                          </styleClass>
+                                      </Button>
+                                      <Button fx:id="clearFileBtn" mnemonicParsing="false" onAction="#clearFile" text="Clear">
+                                          <styleClass>
+                                              <String fx:value="btn" />
+                                              <String fx:value="btn-default" />
+                                    <String fx:value="btn-sm" />
+                                          </styleClass>
+                                      </Button>
+                                      <Label fx:id="fileLabel" maxWidth="300.0" onMouseEntered="#showTooltip" onMouseExited="#hideTooltip" styleClass="i" text="No file selected">
+                                          <tooltip>
+                                              <Tooltip fx:id="fileLabelTooltip" text="No file selected" />
+                                          </tooltip>
+                                      </Label>
+                                  </children>
+                                  <opaqueInsets>
+                                      <Insets />
+                                  </opaqueInsets>
+                              </FlowPane>
+                              <FlowPane hgap="10.0" prefHeight="18.0" prefWidth="200.0">
+                                  <children>
+                                      <CheckBox fx:id="isSpringCheckbox" mnemonicParsing="false" styleClass="i" text="Is Spring archive?" />
+                                      <Button fx:id="loadBtn" disable="true" mnemonicParsing="false" onAction="#loadClasses" text="Load classes">
+                                 <styleClass>
+                                    <String fx:value="btn" />
+                                    <String fx:value="btn-primary" />
+                                    <String fx:value="btn-sm" />
+                                 </styleClass>
+                              </Button>
+                                      <Button fx:id="unloadBtn" disable="true" mnemonicParsing="false" onAction="#unloadClasses" text="Unload classes" userData="loz">
+                                 <styleClass>
+                                    <String fx:value="btn" />
+                                    <String fx:value="btn-danger" />
+                                    <String fx:value="btn-sm" />
+                                 </styleClass>
+                              </Button>
+                                      <ProgressIndicator fx:id="loadingProgress" disable="true" prefHeight="25.0" prefWidth="25.0" visible="false" />
+                                  </children>
+                              </FlowPane>
+                              <FlowPane hgap="10.0" prefHeight="61.0" prefWidth="576.0">
+                                  <children>
+                                      <Label alignment="CENTER" prefHeight="25.0" styleClass="b" text="Class Name" />
+                                    <TextField fx:id="classNameInput" minWidth="250.0" />
+                              <Button mnemonicParsing="false" onAction="#onOpenConfig" style="-fx-text-fill: white;" text="Config">
+                                 <styleClass>
+                                    <String fx:value="btn" />
+                                    <String fx:value="btn-secondary" />
+                                    <String fx:value="btn-sm" />
+                                 </styleClass>
+                              </Button>
+                                      <Button mnemonicParsing="false" onAction="#generate" text="Generate">
+                                          <styleClass>
+                                              <String fx:value="btn" />
+                                              <String fx:value="btn-info" />
+                                    <String fx:value="btn-sm" />
+                                          </styleClass>
+                                      </Button>
+                                  </children>
+                              </FlowPane>
+                     </children>
+                  </VBox>
+                        <TextArea fx:id="inputTextArea" minHeight="500.0" style="-fx-control-inner-background: #000000; -fx-text-fill: yellow;" styleClass="code" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="160.0" />
                     </children>
                 </AnchorPane>
                 <AnchorPane>
                     <children>
-                        <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" prefHeight="27.0" style="&#10;" text="Generated Code" textAlignment="CENTER" textFill="#0affd9" wrapText="false" AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="15.0">
+                        <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" prefHeight="27.0" style="&#10;" text="Output" textAlignment="CENTER" textFill="#0affd9" wrapText="false" AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="15.0">
                      <styleClass>
                         <String fx:value="h3" />
                         <String fx:value="b" />
                      </styleClass></Label>
-                        <TextArea fx:id="outputTextArea" editable="false" layoutX="30.0" layoutY="53.0" prefHeight="469.0" prefWidth="389.0" style="-fx-control-inner-background: #000000; -fx-text-fill: yellow;" styleClass="code" AnchorPane.bottomAnchor="28.600000000000023" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="50.0" />
+                        <TextArea fx:id="outputTextArea" editable="false" layoutX="30.0" layoutY="53.0" prefHeight="469.0" prefWidth="389.0" style="-fx-control-inner-background: #000000; -fx-text-fill: yellow;" styleClass="code" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="50.0" />
                     </children>
                 </AnchorPane>
             </items>
@@ -165,7 +169,7 @@
                         <Font size="11.0" fx:id="x3" />
                     </font>
                     <textFill>
-                        <Color blue="0.625" green="0.625" red="0.625" fx:id="x4" />
+                        <Color red="0.625" green="0.625" blue="0.625" fx:id="x4" />
                     </textFill>
                 </Label>
                 <Pane prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />

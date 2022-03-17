@@ -51,6 +51,8 @@ public class ResourceUtil {
     public <T, C> Dialog<T> initDialog(String templateRelativePath, BiConsumer<Dialog<T>, C> controllerAction) throws IOException, InstantiationException, IllegalAccessException {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(TEMPLATE_ROOT + templateRelativePath + ".fxml"));
         Dialog<T> dialog = new Dialog<>();
+        dialog.setWidth(480);
+        dialog.setHeight(300);
 //        scene.getStylesheets().add("org/kordamp/bootstrapfx/bootstrapfx.css");
 //        C controller = controllerAction.apply(dialog);
 //        fxmlLoader.setController(controller);
