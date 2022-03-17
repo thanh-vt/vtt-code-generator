@@ -6,6 +6,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
+import org.controlsfx.control.textfield.TextFields;
 import vn.thanhvt.App;
 import vn.thanhvt.model.Setting;
 import vn.thanhvt.service.MainService;
@@ -14,6 +15,9 @@ import vn.thanhvt.util.UiUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MainController {
 
@@ -72,6 +76,15 @@ public class MainController {
                 new FileChooser.ExtensionFilter("Web Archive", "*.war")
         );
         this.clearFile(null);
+        Set<String> suggestionSet = new HashSet<>(
+                Arrays.asList(
+                        "vn.etc.customs.ektt.dto.KtHosoDto",
+                        "vn.etc.customs.ektt.dto.KtHosoCtDto",
+                        "vn.etc.customs.ektt.dto.KtBangkeNhantuKhobacDto",
+                        "vn.etc.customs.ektt.dto.KtBangkeNhantuKhobacCtDto"
+                )
+        );
+        TextFields.bindAutoCompletion(this.classNameInput, suggestionSet).setMinWidth(500);
     }
 
     @FXML

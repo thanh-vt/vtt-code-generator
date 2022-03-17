@@ -119,11 +119,11 @@ public class MainService {
                 val = "\"" + entry.getValue().asText() + "\"";
             } else if (Number.class.isAssignableFrom(fieldType)) {
                 if (fieldType == Double.class) {
-                    val = entry.getValue().asText() + "d";
+                    val = entry.getValue().asText() + "D";
                 } else if (fieldType == Float.class) {
-                    val = entry.getValue().asText() + "f";
+                    val = entry.getValue().asText() + "F";
                 } else if (fieldType == Long.class) {
-                    val = entry.getValue().asText() + "l";
+                    val = entry.getValue().asText() + "L";
                 } else if (fieldType == BigDecimal.class) {
                     val = "new BigDecimal(\"" + entry.getValue().asText() + "\")";
                 } else {

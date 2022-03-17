@@ -20,6 +20,10 @@ public class App extends Application {
         Scene scene = ResourceUtil.initScene("main");
         stage.getIcons().add(new Image(ResourceUtil.getResource("/images/Spr_B2W2_Alder.png")));
         stage.setScene(scene);
+        stage.setWidth(1280);
+        stage.setHeight(800);
+        stage.setMinWidth(600);
+        stage.setMinHeight(400);
         stage.setTitle("JSON TO INIT CODE GENERATOR");
         stage.show();
         mainStage = stage;

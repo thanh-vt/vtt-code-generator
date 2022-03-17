@@ -55,9 +55,10 @@ public class ResourceUtil {
 //        C controller = controllerAction.apply(dialog);
 //        fxmlLoader.setController(controller);
         DialogPane rootNode = fxmlLoader.load();
+        rootNode.setExpandableContent(null);
         controllerAction.accept(dialog, fxmlLoader.getController());
         dialog.setDialogPane(rootNode);
-        dialog.setContentText("lozz");
+
         return dialog;
     }
 
