@@ -126,7 +126,7 @@ public class MainService {
                 }
             } else if (fieldType == Date.class) {
                 Date date = setting.parseDate(entry.getValue().asText());
-                val = "new Date(" + date.getTime() + "l)";
+                val = "new Date(" + date.getTime() + "L)";
             } else {
                 throw new OperationNotSupportedException(String.format("Type %s not supported", fieldType.getName()));
             }

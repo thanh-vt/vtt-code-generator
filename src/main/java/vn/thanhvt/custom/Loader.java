@@ -44,6 +44,7 @@ public abstract class Loader {
             }
         }
         this.extractArchive(archivesIterator, loadedSourceClassNames);
+        archivesIterator = this.getClassPathArchivesIterator();
         return this.createClassLoader(archivesIterator);
     }
 
