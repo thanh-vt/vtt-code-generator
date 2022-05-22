@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="json-to-code-generator" />
+        <module name="vtt-code-generator" />
       </profile>
     </annotationProcessing>
   </component>

@@ -39,16 +39,18 @@ public class PathBrowser extends HBox implements Initializable {
         this.selected = new File(StorageUtil.getSetting().getLastOutDir());
         if (this.selected.exists()) {
             this.directoryChooser.setInitialDirectory(selected);
+            this.outPath.setText(selected.getAbsolutePath());
         } else {
-            this.directoryChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+            File home = new File(System.getProperty("user.home"));
+            this.directoryChooser.setInitialDirectory(home);
+            this.outPath.setText(home.getAbsolutePath());
         }
         this.directoryChooser.setTitle("Choose output path");
     }
 
     public void browse(ActionEvent event) {
-        this.selected = new File(StorageUtil.getSetting().getLastOutDir());
         if (this.selected.exists()) {
-            this.directoryChooser.setInitialDirectory(selected);
+            this.directoryChooser.setInitialDirectory(this.selected);
         } else {
             this.directoryChooser.setInitialDirectory(new File(System.getProperty("user.home")));
         }
@@ -56,6 +58,7 @@ public class PathBrowser extends HBox implements Initializable {
         this.selected = this.directoryChooser.showDialog(new Stage());
         if (this.selected != null) {
             this.outPath.setText(selected.getAbsolutePath());
+            StorageUtil.getSetting().setLastOutDir(this.selected.getAbsolutePath());
         }
     }
 
