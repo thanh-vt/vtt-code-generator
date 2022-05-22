@@ -18,7 +18,9 @@ import javafx.util.Pair;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import vn.thanhvt.App;
+import vn.thanhvt.constant.AppConstant;
 import vn.thanhvt.util.ResourceUtil;
+import vn.thanhvt.util.StorageUtil;
 import vn.thanhvt.util.UiUtil;
 
 /**
@@ -70,11 +72,20 @@ public class ArchiveClassesLoader extends VBox implements Initializable {
     @Setter
     private Runnable unloadClassesCallback;
 
+    private File currentDirectory;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        this.currentDirectory = new File(StorageUtil.getSetting().getLastInDir());
         this.fileChooser.setTitle("Select jar file");
+        if (this.currentDirectory.exists()) {
+            this.fileChooser.setInitialDirectory(this.currentDirectory);
+        } else {
+            File home = new File(System.getProperty(AppConstant.HOME_DIR));
+            this.fileChooser.setInitialDirectory(home);
+        }
         this.fileChooser.setInitialDirectory(
-            new File(System.getProperty("user.home"))
+            new File(System.getProperty(AppConstant.HOME_DIR))
         );
         this.fileChooser.getExtensionFilters().addAll(
             new FileChooser.ExtensionFilter("All file", "*.jar", "*.war"),
@@ -95,12 +106,20 @@ public class ArchiveClassesLoader extends VBox implements Initializable {
 
     @FXML
     public void openFileBrowser(ActionEvent event) {
+        if (this.currentDirectory.exists()) {
+            this.fileChooser.setInitialDirectory(this.currentDirectory);
+        } else {
+            File home = new File(System.getProperty(AppConstant.HOME_DIR));
+            this.fileChooser.setInitialDirectory(home);
+        }
         File selectedFile = this.fileChooser.showOpenDialog(App.mainStage);
         if (selectedFile != null) {
             this.fileLabel.setText(selectedFile.getAbsolutePath());
             this.fileLabelTooltip.setText(selectedFile.getAbsolutePath());
             System.out.printf("File loaded: %s%n", selectedFile.getAbsolutePath());
             this.selectedFile = selectedFile;
+            this.currentDirectory = selectedFile.getParentFile();
+            StorageUtil.getSetting().setLastInDir(this.currentDirectory.getAbsolutePath());
         } else {
             this.clearFile(event);
         }

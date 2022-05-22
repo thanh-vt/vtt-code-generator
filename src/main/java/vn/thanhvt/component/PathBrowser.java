@@ -11,6 +11,7 @@ import javafx.scene.layout.HBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import lombok.SneakyThrows;
+import vn.thanhvt.constant.AppConstant;
 import vn.thanhvt.util.ResourceUtil;
 import vn.thanhvt.util.StorageUtil;
 
@@ -41,7 +42,7 @@ public class PathBrowser extends HBox implements Initializable {
             this.directoryChooser.setInitialDirectory(selected);
             this.outPath.setText(selected.getAbsolutePath());
         } else {
-            File home = new File(System.getProperty("user.home"));
+            File home = new File(System.getProperty(AppConstant.HOME_DIR));
             this.directoryChooser.setInitialDirectory(home);
             this.outPath.setText(home.getAbsolutePath());
         }
@@ -52,7 +53,7 @@ public class PathBrowser extends HBox implements Initializable {
         if (this.selected.exists()) {
             this.directoryChooser.setInitialDirectory(this.selected);
         } else {
-            this.directoryChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+            this.directoryChooser.setInitialDirectory(new File(System.getProperty(AppConstant.HOME_DIR)));
         }
         this.directoryChooser.setTitle("Choose output path");
         this.selected = this.directoryChooser.showDialog(new Stage());

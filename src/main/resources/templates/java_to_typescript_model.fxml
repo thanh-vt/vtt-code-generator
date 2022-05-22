@@ -41,7 +41,7 @@
                 <Button mnemonicParsing="false" onAction="#onOpenConfig" style="-fx-text-fill: white;" text="Config">
                   <styleClass>
                     <String fx:value="btn"/>
-                    <String fx:value="btn-secondary"/>
+                    <String fx:value="btn-success"/>
                     <String fx:value="btn-sm"/>
                   </styleClass>
                 </Button>
@@ -54,7 +54,7 @@
                 </Button>
               </children>
             </FlowPane>
-            <ListView fx:id="typescriptModelListView" VBox.vgrow="ALWAYS"/>
+            <ListView fx:id="typescriptModelListView" prefHeight="564.0" prefWidth="576.0" VBox.vgrow="ALWAYS"/>
           </children>
         </VBox>
       </children>
@@ -87,6 +87,7 @@
             <TableColumn fx:id="fieldNameColumn" prefWidth="-1.0" text="Field Name"/>
             <TableColumn fx:id="dataTypeColumn" minWidth="0.0" prefWidth="-1.0" text="Data Type"/>
             <TableColumn fx:id="customDataTypeColumn" prefWidth="-1.0" text="Custom Type"/>
+            <TableColumn fx:id="collectionTypeColumn" prefWidth="-1.0" text="Collection Type"/>
             <TableColumn fx:id="nullableColumn" prefWidth="-1.0" text="Nullable"/>
           </columns>
           <columnResizePolicy>

@@ -92,4 +92,14 @@ public class ResourceUtil {
         return App.class.getResourceAsStream(resourcePath);
     }
 
+    public void applyDarkTheme(Parent root) {
+        String darkThemeSheet = ResourceUtil.getStyleSheet("dark-theme");
+        boolean isToggled = StorageUtil.getSetting().getDarkModeEnabled();
+        if (isToggled) {
+            root.getStylesheets().add(darkThemeSheet);
+        } else {
+            root.getStylesheets().remove(darkThemeSheet);
+        }
+    }
+
 }

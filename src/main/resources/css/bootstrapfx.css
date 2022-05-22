@@ -1515,3 +1515,11 @@ a.badge:hover, a.badge:focused {
 .code-text-area {
   -fx-text-fill: magenta;
 }
+
+.toggle-button {
+  -fx-background-color: #efdb68 !important;
+}
+
+.toggle-button:selected {
+  -fx-background-color: #00a6ff !important;
+}

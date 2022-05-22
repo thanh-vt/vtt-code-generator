@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.UtilityClass;
+import vn.thanhvt.constant.AppConstant;
 
 /**
  * @author pysga
@@ -26,21 +27,30 @@ public class StorageUtil {
     @AllArgsConstructor
     public static class Setting {
 
+        private Boolean darkModeEnabled;
+
+        private String lastInDir;
+
         private String lastOutDir;
 
     }
 
-    private final Path BASE_DIR = Paths.get(System.getProperty("user.dir"));
+    private final Path BASE_DIR = Paths.get(System.getProperty(AppConstant.WORKING_DIR));
 
     private final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private Setting SETTING = new Setting(Paths.get(System.getProperty("user.home")).toAbsolutePath().toString());
+    private Setting SETTING = Setting.builder()
+        .darkModeEnabled(Boolean.FALSE)
+        .lastInDir(Paths.get(System.getProperty(AppConstant.HOME_DIR)).toAbsolutePath().toString())
+        .lastOutDir(Paths.get(System.getProperty(AppConstant.HOME_DIR)).toAbsolutePath().toString())
+        .build();
 
-    static {
+    public void initSetting() {
         Path settingFile = BASE_DIR.resolve("setting.json");
         if (!Files.exists(settingFile)) {
             try {
                 Files.createFile(settingFile);
+                Files.write(settingFile, OBJECT_MAPPER.writeValueAsBytes(SETTING));
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -17,6 +17,10 @@ public class AppConstant {
 
     public List<String> DEFAULT_DATE_FORMAT_LIST;
 
+    public String HOME_DIR = "user.home";
+
+    public String WORKING_DIR = "user.dir";
+
     static {
         List<String> defaultDfList = Arrays.asList(
                 "yyyy-MM-dd'T'HH:mm:ssXXX",

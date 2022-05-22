@@ -81,7 +81,7 @@
               <Button mnemonicParsing="false" onAction="#onOpenConfig" style="-fx-text-fill: white;" text="Config">
                 <styleClass>
                   <String fx:value="btn" />
-                  <String fx:value="btn-secondary" />
+                  <String fx:value="btn-success" />
                   <String fx:value="btn-sm" />
                 </styleClass>
               </Button>
@@ -94,7 +94,7 @@
               </Button>
             </children>
           </FlowPane>
-            <TextArea fx:id="inputTextArea" minHeight="500.0" styleClass="code-text-area" VBox.vgrow="ALWAYS" />
+            <TextArea fx:id="inputTextArea" styleClass="code-text-area" VBox.vgrow="ALWAYS" />
         </children>
       </VBox>
     </children>
@@ -107,7 +107,7 @@
           <String fx:value="b" />
         </styleClass>
             </Label>
-      <TextArea fx:id="outputTextArea" editable="false" layoutX="30.0" layoutY="53.0" prefHeight="469.0" prefWidth="389.0" styleClass="code-text-area" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="50.0" />
+      <TextArea fx:id="outputTextArea" editable="false" layoutX="30.0" layoutY="53.0" styleClass="code-text-area" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="50.0" />
     </children>
   </AnchorPane>
 </items>

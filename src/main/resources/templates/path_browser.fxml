@@ -12,7 +12,7 @@
   <Button mnemonicParsing="false" onAction="#browse" text="Browse">
     <styleClass>
       <String fx:value="btn" />
-      <String fx:value="btn-info" />
+      <String fx:value="btn-default" />
       <String fx:value="btn-sm" />
     </styleClass>
   </Button>

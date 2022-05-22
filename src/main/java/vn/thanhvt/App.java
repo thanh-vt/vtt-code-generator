@@ -18,16 +18,18 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        Scene scene = ResourceUtil.initScene("main");
-        stage.getIcons().add(new Image(ResourceUtil.getResource("/images/Spr_B2W2_Alder.png")));
-        stage.setScene(scene);
-        stage.setWidth(1280);
-        stage.setHeight(800);
-        stage.setMinWidth(800);
-        stage.setMinHeight(640);
-        stage.setTitle("JSON TO INIT CODE GENERATOR");
-        stage.show();
         mainStage = stage;
+        StorageUtil.initSetting();
+        Scene scene = ResourceUtil.initScene("main");
+        ResourceUtil.applyDarkTheme(scene.getRoot());
+        mainStage.getIcons().add(new Image(ResourceUtil.getResource("/images/Spr_B2W2_Alder.png")));
+        mainStage.setScene(scene);
+        mainStage.setWidth(1280);
+        mainStage.setHeight(800);
+        mainStage.setMinWidth(800);
+        mainStage.setMinHeight(640);
+        mainStage.setTitle("VTT CODE GENERATOR");
+        mainStage.show();
     }
 
     @Override

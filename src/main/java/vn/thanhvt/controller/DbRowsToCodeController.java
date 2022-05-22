@@ -103,7 +103,9 @@ public class DbRowsToCodeController implements Initializable {
                 });
             settingDialog.initModality(Modality.APPLICATION_MODAL);
             settingDialog.setTitle("Config");
+            ResourceUtil.applyDarkTheme(settingDialog.getDialogPane());
             settingDialog.showAndWait();
+
         } catch (IOException | InstantiationException | IllegalAccessException e) {
             UiUtil.showError(e);
         }

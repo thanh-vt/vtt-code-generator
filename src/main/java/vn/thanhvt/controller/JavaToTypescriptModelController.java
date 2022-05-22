@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -32,6 +33,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -41,6 +43,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.DirectoryChooser;
+import javafx.util.Callback;
 import javafx.util.Pair;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -79,10 +82,14 @@ public class JavaToTypescriptModelController implements Initializable {
     private TableColumn<TypescriptModelProperty, TypescriptDataType> dataTypeColumn;
 
     @FXML
-    private TableColumn<TypescriptModelProperty, Boolean> nullableColumn;
+    private TableColumn<TypescriptModelProperty, String> customDataTypeColumn;
 
     @FXML
-    private TableColumn<TypescriptModelProperty, String> customDataTypeColumn;
+    public TableColumn<TypescriptModelProperty, String> collectionTypeColumn;
+
+    @FXML
+    private TableColumn<TypescriptModelProperty, Boolean> nullableColumn;
+
 
     @FXML
     private TableView<TypescriptModelProperty> modelAttrsTable;
@@ -147,6 +154,18 @@ public class JavaToTypescriptModelController implements Initializable {
             int rowIndex = position.getRow();
             TypescriptModelProperty typescriptModelProperty = event.getTableView().getItems().get(rowIndex);
             typescriptModelProperty.setDataType(typescriptDataType);
+//            if (TypescriptDataType.NESTED.equals(typescriptDataType)) {
+//                if (typescriptModelProperty.getCollection() != null) {
+//                    typescriptModelProperty.getCollection().setCustomContentType("");
+//                }
+//            } else if (TypescriptDataType.COLLECTION.equals(typescriptDataType)) {
+//                typescriptModelProperty.setCustomDataType("");
+//            } else {
+//                if (typescriptModelProperty.getCollection() != null) {
+//                    typescriptModelProperty.getCollection().setCustomContentType("");
+//                }
+//                typescriptModelProperty.setCustomDataType("");
+//            }
         });
         this.dataTypeColumn.prefWidthProperty().bind(this.modelAttrsTable.widthProperty().multiply(0.3));
         // Nested data type column
@@ -160,6 +179,26 @@ public class JavaToTypescriptModelController implements Initializable {
             typescriptModelProperty.setCustomDataType(customDataType);
         });
         this.customDataTypeColumn.prefWidthProperty().bind(this.modelAttrsTable.widthProperty().multiply(0.3));
+        // Collection type column
+        // Field name column
+        this.collectionTypeColumn.setCellValueFactory(
+            param -> {
+                if (TypescriptDataType.COLLECTION.equals(param.getValue().getDataType()) && param.getValue().getCollection() != null) {
+                    return new SimpleObjectProperty<>(param.getValue().getCollection().getCustomContentType());
+                } else {
+                    return new SimpleObjectProperty<>("");
+                }
+            });
+        this.collectionTypeColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        this.collectionTypeColumn.setOnEditCommit(event -> {
+            TablePosition<TypescriptModelProperty, String> position = event.getTablePosition();
+            String customCollectionType = event.getNewValue();
+            int row = position.getRow();
+            TypescriptModelProperty typescriptModelProperty = event.getTableView().getItems().get(row);
+            if (TypescriptDataType.COLLECTION.equals(typescriptModelProperty.getDataType()) && typescriptModelProperty.getCollection() != null) {
+                typescriptModelProperty.getCollection().setCustomContentType(customCollectionType);
+            }
+        });
         // Nullable column
         this.nullableColumn.setCellValueFactory(
             param -> {

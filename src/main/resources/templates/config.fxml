@@ -25,7 +25,6 @@
      <ButtonType fx:constant="APPLY" />
    </buttonTypes>
   <stylesheets>
-    <URL value="@../css/dark-theme.css" />
     <URL value="@../css/bootstrapfx.css" />
   </stylesheets>
    <graphic>
