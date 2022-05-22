@@ -32,7 +32,7 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        this.darkModeToggler.setSelected(StorageUtil.getSetting().getDarkModeEnabled());
+        this.darkModeToggler.setSelected(StorageUtil.getSetting().isDarkModeEnabled());
     }
 
     public void toggleDarkMode(ActionEvent event) {

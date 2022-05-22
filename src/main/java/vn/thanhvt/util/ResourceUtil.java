@@ -94,7 +94,7 @@ public class ResourceUtil {
 
     public void applyDarkTheme(Parent root) {
         String darkThemeSheet = ResourceUtil.getStyleSheet("dark-theme");
-        boolean isToggled = StorageUtil.getSetting().getDarkModeEnabled();
+        boolean isToggled = StorageUtil.getSetting().isDarkModeEnabled();
         if (isToggled) {
             root.getStylesheets().add(darkThemeSheet);
         } else {

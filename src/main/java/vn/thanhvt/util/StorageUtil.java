@@ -27,11 +27,11 @@ public class StorageUtil {
     @AllArgsConstructor
     public static class Setting {
 
-        private Boolean darkModeEnabled;
+        private boolean darkModeEnabled = false;
 
-        private String lastInDir;
+        private String lastInDir = Paths.get(System.getProperty(AppConstant.HOME_DIR)).toAbsolutePath().toString();
 
-        private String lastOutDir;
+        private String lastOutDir = Paths.get(System.getProperty(AppConstant.HOME_DIR)).toAbsolutePath().toString();
 
     }
 
