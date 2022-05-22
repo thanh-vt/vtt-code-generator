@@ -1,13 +1,14 @@
 package vn.thanhvt.custom;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import org.springframework.boot.loader.LaunchedURLClassLoader;
 import org.springframework.boot.loader.MainMethodRunner;
 import org.springframework.boot.loader.archive.Archive;
@@ -28,39 +29,44 @@ public abstract class Loader {
     public Loader() {
     }
 
-    public ClassLoader load(Set<String> loadedSourceClassNames) throws Exception {
+    public ClassLoader load(Set<String> loadedSourceClassNames, Set<String> loadedPackageNames) throws Exception {
         if (!this.isExploded()) {
             JarFile.registerUrlProtocolHandler();
         }
 
-        //        String jarMode = System.getProperty("jarmode");
+//        String jarMode = System.getProperty("jarmode");
 //        String launchClass = jarMode != null && !jarMode.isEmpty() ? "org.springframework.boot.loader.jarmode.JarModeLauncher" : this.getMainClass();
 //        this.launch(args, launchClass, classLoader);
         Iterator<Archive> archivesIterator = this.getClassPathArchivesIterator();
         for (Archive.Entry entry : this.getArchive()) {
-            String className = this.checkIsSourceClass(entry);
-            if (className != null) {
-                loadedSourceClassNames.add(className);
+            EntryClassifier entryClassifier = this.checkIsSourceClass(entry);
+            if (Boolean.TRUE.equals(entryClassifier.getIsPackage())) {
+                loadedPackageNames.add(entryClassifier.getName());
+            } else if (Boolean.FALSE.equals(entryClassifier.getIsPackage())) {
+                loadedSourceClassNames.add(entryClassifier.getName());
             }
         }
-        this.extractArchive(archivesIterator, loadedSourceClassNames);
+        this.extractArchive(archivesIterator, loadedSourceClassNames, loadedPackageNames);
         archivesIterator = this.getClassPathArchivesIterator();
         return this.createClassLoader(archivesIterator);
     }
 
-    public void extractArchive(Iterator<Archive> archiveIterator, Set<String> entries) throws IOException {
+    public void extractArchive(Iterator<Archive> archiveIterator, Set<String> loadedSourceClassNames,
+        Set<String> loadedPackageNames) {
         while (archiveIterator.hasNext()) {
             Archive archive = archiveIterator.next();
             for (Archive.Entry entry : archive) {
-                String className = this.checkIsSourceClass(entry);
-                if (className != null) {
-                    entries.add(className);
+                EntryClassifier entryClassifier = this.checkIsSourceClass(entry);
+                if (Boolean.TRUE.equals(entryClassifier.getIsPackage())) {
+                    loadedPackageNames.add(entryClassifier.getName());
+                } else if (Boolean.FALSE.equals(entryClassifier.getIsPackage())) {
+                    loadedSourceClassNames.add(entryClassifier.getName());
                 }
             }
         }
     }
 
-    protected abstract String checkIsSourceClass(Archive.Entry entry);
+    protected abstract EntryClassifier checkIsSourceClass(Archive.Entry entry);
 
     /** @deprecated */
     @Deprecated
@@ -113,7 +119,7 @@ public abstract class Loader {
             if (!root.exists()) {
                 throw new IllegalStateException("Unable to determine code source archive from " + root);
             } else {
-                return (Archive)(root.isDirectory() ? new ExplodedArchive(root) : new JarFileArchive(root));
+                return root.isDirectory() ? new ExplodedArchive(root) : new JarFileArchive(root);
             }
         }
     }

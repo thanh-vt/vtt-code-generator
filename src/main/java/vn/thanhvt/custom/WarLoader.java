@@ -11,22 +11,33 @@ import org.springframework.boot.loader.archive.Archive.Entry;
  **/
 public class WarLoader extends ExecutableArchiveLoader {
 
-    public WarLoader() {
-    }
-
     public WarLoader(Archive archive) {
         super(archive);
     }
 
     @Override
-    protected String checkIsSourceClass(Archive.Entry entry) {
-        if (entry.getName().startsWith("WEB-INF/classes/") && entry.getName().endsWith(".class")) {
-            return entry.getName()
-                .replace("WEB-INF/classes/", "")
-                .replace("/", ".")
-                .replace(".class", "");
+    protected EntryClassifier checkIsSourceClass(Entry entry) {
+        if (entry.getName().startsWith("WEB-INF/classes/")) {
+            if (entry.getName().endsWith(".class")) {
+                return new EntryClassifier(
+                    false,
+                    entry.getName()
+                        .replace("WEB-INF/classes/", "")
+                        .replace("/", ".")
+                        .replace(".class", "")
+                );
+            } else {
+                return new EntryClassifier(
+                    true,
+                    entry.getName()
+                        .replace("WEB-INF/classes/", "")
+                        .replace("/", ".")
+                        .replaceAll(".$", "")
+                );
+            }
+
         }
-        return null;
+        return new EntryClassifier(null, null);
     }
 
     protected boolean isPostProcessingClassPathArchives() {

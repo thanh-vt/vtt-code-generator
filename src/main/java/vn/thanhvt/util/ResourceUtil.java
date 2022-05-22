@@ -1,28 +1,44 @@
 package vn.thanhvt.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
+import javafx.util.Pair;
 import lombok.experimental.UtilityClass;
 import vn.thanhvt.App;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 @UtilityClass
 public class ResourceUtil {
 
     private final String TEMPLATE_ROOT = "/templates/";
 
-    public <T> Scene initScene(String templateRelativePath, int width, int height, Consumer<T> controllerCustomizer) throws IOException {
+    private final String STYLE_ROOT = "/css/";
+
+    public <N extends Node, C> Pair<N, C> getNodeAndController(String templateRelativePath) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(TEMPLATE_ROOT + templateRelativePath + ".fxml"));
-        Parent rootNode = fxmlLoader.load();
+        return new Pair<>(fxmlLoader.load(), fxmlLoader.getController());
+    }
+
+    public void initCustomComponent(String templateRelativePath, Object root) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(TEMPLATE_ROOT + templateRelativePath + ".fxml"));
+        fxmlLoader.setController(root);
+        fxmlLoader.setRoot(root);
+        fxmlLoader.load();
+//        System.out.println(root == fxmlLoader.getController());
+    }
+
+    public <C> Scene initScene(String templateRelativePath, int width, int height, Consumer<C> controllerCustomizer) throws IOException {
+        Pair<Parent, C> result = getNodeAndController(templateRelativePath);
+        Parent rootNode = result.getKey();
         Scene scene;
         if (width > 0 && height > 0) {
             scene = new Scene(rootNode, width, height);
@@ -30,7 +46,7 @@ public class ResourceUtil {
             scene = new Scene(rootNode);
         }
 //        scene.getStylesheets().add("org/kordamp/bootstrapfx/bootstrapfx.css");
-        controllerCustomizer.accept(fxmlLoader.getController());
+        controllerCustomizer.accept(result.getValue());
         return scene;
     }
 
@@ -66,6 +82,10 @@ public class ResourceUtil {
 
     public URL getResourceUrl(String templateRelativePath) {
         return App.class.getResource(TEMPLATE_ROOT + templateRelativePath + ".fxml");
+    }
+
+    public String getStyleSheet(String styleRelativePath) {
+        return Objects.requireNonNull(App.class.getResource(STYLE_ROOT + styleRelativePath + ".css")).toExternalForm();
     }
 
     public InputStream getResource(String resourcePath) {

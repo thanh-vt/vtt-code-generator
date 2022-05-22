@@ -9,7 +9,7 @@ import javafx.util.StringConverter;
 import lombok.Setter;
 import vn.thanhvt.constant.AppConstant;
 import vn.thanhvt.constant.JsonNamingStrategy;
-import vn.thanhvt.model.Setting;
+import vn.thanhvt.model.DbRowsToCodeSetting;
 import vn.thanhvt.util.UiUtil;
 
 import java.util.Arrays;
@@ -31,10 +31,10 @@ public class ConfigController {
     @FXML
     private ChoiceBox<JsonNamingStrategy> jsonFieldNamingChoiceBox;
 
-    private Setting currentSetting;
+    private DbRowsToCodeSetting currentDbRowsToCodeSetting;
 
     @Setter
-    private BiConsumer<ButtonBar.ButtonData, Setting> onActionHandler;
+    private BiConsumer<ButtonBar.ButtonData, DbRowsToCodeSetting> onActionHandler;
 
     @FXML
     private void initialize() {
@@ -58,24 +58,24 @@ public class ConfigController {
         final Button okBtn = (Button) this.dialogPane.lookupButton(ButtonType.OK);
         okBtn.addEventFilter(ActionEvent.ACTION, event -> {
             this.applySetting();
-            this.onActionHandler.accept(ButtonBar.ButtonData.OK_DONE, this.currentSetting);
+            this.onActionHandler.accept(ButtonBar.ButtonData.OK_DONE, this.currentDbRowsToCodeSetting);
             event.consume();
         });
         final Button cancelBtn = (Button) this.dialogPane.lookupButton(ButtonType.CANCEL);
         cancelBtn.addEventFilter(ActionEvent.ACTION, event -> {
-            this.onActionHandler.accept(ButtonBar.ButtonData.CANCEL_CLOSE, this.currentSetting);
+            this.onActionHandler.accept(ButtonBar.ButtonData.CANCEL_CLOSE, this.currentDbRowsToCodeSetting);
             event.consume();
         });
         final Button applyBtn = (Button) this.dialogPane.lookupButton(ButtonType.APPLY);
         applyBtn.addEventFilter(ActionEvent.ACTION, event -> {
             this.applySetting();
-            this.onActionHandler.accept(ButtonBar.ButtonData.APPLY, this.currentSetting);
+            this.onActionHandler.accept(ButtonBar.ButtonData.APPLY, this.currentDbRowsToCodeSetting);
             event.consume();
         });
     }
 
     public void applySetting() {
-        this.currentSetting = Setting.from(
+        this.currentDbRowsToCodeSetting = DbRowsToCodeSetting.from(
                 this.jsonFieldNamingChoiceBox.getValue(),
                 this.ignoreNullCheckbox.isSelected(),
                 this.dateFieldFormatComboBox.getEditor().getText(),
@@ -124,13 +124,13 @@ public class ConfigController {
         }
     }
 
-    public void initSetting(Setting setting) {
-        this.currentSetting = setting;
-        this.jsonFieldNamingChoiceBox.setValue(this.currentSetting.getJsonNamingStrategy());
-        this.ignoreNullCheckbox.setSelected(this.currentSetting.isIgnoreNull());
-        Set<String> items = new HashSet<>(this.currentSetting.getSdfPool().keySet());
+    public void initSetting(DbRowsToCodeSetting dbRowsToCodeSetting) {
+        this.currentDbRowsToCodeSetting = dbRowsToCodeSetting;
+        this.jsonFieldNamingChoiceBox.setValue(this.currentDbRowsToCodeSetting.getJsonNamingStrategy());
+        this.ignoreNullCheckbox.setSelected(this.currentDbRowsToCodeSetting.isIgnoreNull());
+        Set<String> items = new HashSet<>(this.currentDbRowsToCodeSetting.getSdfPool().keySet());
         this.dateFieldFormatComboBox.setItems(FXCollections.observableArrayList(items));
-        this.dateFieldFormatComboBox.getSelectionModel().select(this.currentSetting.getDateFormat());
+        this.dateFieldFormatComboBox.getSelectionModel().select(this.currentDbRowsToCodeSetting.getDateFormat());
     }
 
     public void resetDefault() {

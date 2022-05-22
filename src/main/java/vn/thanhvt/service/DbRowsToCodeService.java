@@ -17,14 +17,15 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import javafx.util.Pair;
 import javax.naming.OperationNotSupportedException;
 import org.springframework.boot.loader.archive.JarFileArchive;
 import vn.thanhvt.custom.JarLoader;
 import vn.thanhvt.custom.SimpleJarLoader;
 import vn.thanhvt.custom.WarLoader;
-import vn.thanhvt.model.Setting;
+import vn.thanhvt.model.DbRowsToCodeSetting;
 
-public class MainService {
+public class DbRowsToCodeService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -36,16 +37,17 @@ public class MainService {
 
     public Set<String> applyConfig(File f, boolean isSpring) throws Exception {
         Set<String> loadedSourceClassNames = new HashSet<>();
+        Set<String> loadedPackageNames = new HashSet<>();
         if (isSpring) {
             if (f.getName().endsWith(".jar")) {
-                this.currentClassLoader = new JarLoader(new JarFileArchive(f)).load(loadedSourceClassNames);
+                this.currentClassLoader = new JarLoader(new JarFileArchive(f)).load(loadedSourceClassNames, loadedPackageNames);
             } else if (f.getName().endsWith(".war")) {
-                this.currentClassLoader = new WarLoader(new JarFileArchive(f)).load(loadedSourceClassNames);
+                this.currentClassLoader = new WarLoader(new JarFileArchive(f)).load(loadedSourceClassNames, loadedPackageNames);
             } else {
                 throw new OperationNotSupportedException("This file extension is not supported");
             }
         } else {
-            this.currentClassLoader = new SimpleJarLoader(f).load(loadedSourceClassNames);
+            this.currentClassLoader = new SimpleJarLoader(f).load(loadedSourceClassNames, loadedPackageNames);
         }
         return loadedSourceClassNames;
     }
@@ -54,7 +56,7 @@ public class MainService {
         this.currentClassLoader = null;
     }
 
-    public String generate(String className, String inputText, Setting setting)
+    public String generate(String className, String inputText, DbRowsToCodeSetting dbRowsToCodeSetting)
             throws OperationNotSupportedException, ClassNotFoundException, JsonProcessingException, ParseException {
         if (className == null || className.trim().isEmpty()) {
             throw new RuntimeException("Classname required!");
@@ -64,7 +66,7 @@ public class MainService {
         String classSimpleName = clazz.getSimpleName();
         String varBaseName = classSimpleName.substring(0, 1).toLowerCase(Locale.ROOT) + classSimpleName.substring(1);
         if (jsonNode.isObject()) {
-            return this.convertObjectNode((ObjectNode) jsonNode, clazz, varBaseName, setting);
+            return this.convertObjectNode((ObjectNode) jsonNode, clazz, varBaseName, dbRowsToCodeSetting);
         } else if (jsonNode.isArray()) {
             String varListName = varBaseName + "List";
             StringBuilder sb = new StringBuilder();
@@ -76,7 +78,7 @@ public class MainService {
             for (int i = 0; i < jsonNode.size(); i++) {
                 if (arrayNode.get(i).isObject()) {
                     String varName = varBaseName + (i + 1);
-                    sb.append(this.convertObjectNode((ObjectNode) arrayNode.get(i), clazz, varName, setting));
+                    sb.append(this.convertObjectNode((ObjectNode) arrayNode.get(i), clazz, varName, dbRowsToCodeSetting));
                     sb.append(varListName).append(".add(").append(varName).append(");\n");
                 } else throw new OperationNotSupportedException("Nested array json not supported");
             }
@@ -85,7 +87,7 @@ public class MainService {
     }
 
     private String convertObjectNode(ObjectNode objectNode, Class<?> clazz, String varName,
-                                     Setting setting) throws OperationNotSupportedException, ParseException {
+                                     DbRowsToCodeSetting dbRowsToCodeSetting) throws OperationNotSupportedException, ParseException {
 
 //        Map<String, ?> map = this.objectMapper.readValue(inputText, Map.class);
         String classSimpleName = clazz.getSimpleName();
@@ -99,7 +101,7 @@ public class MainService {
         Iterator<Map.Entry<String, JsonNode>> fieldIterator = objectNode.fields();
         while (fieldIterator.hasNext()) {
             Map.Entry<String, JsonNode> entry = fieldIterator.next();
-            String pascalFieldName = setting.getJsonNamingStrategy().getConvertFunction().apply(entry.getKey());
+            String pascalFieldName = dbRowsToCodeSetting.getJsonNamingStrategy().getConvertFunction().apply(entry.getKey());
             String getterName = "get" + pascalFieldName;
             Method getter = methodMap.get(getterName);
             if (getter == null) {
@@ -108,7 +110,7 @@ public class MainService {
             Class<?> fieldType = getter.getReturnType();
             String val;
             if (entry.getValue() instanceof NullNode) {
-                if (setting.isIgnoreNull()) continue;
+                if (dbRowsToCodeSetting.isIgnoreNull()) continue;
                 val = "null";
             } else if (fieldType == String.class) {
                 val = "\"" + entry.getValue().asText() + "\"";
@@ -125,7 +127,7 @@ public class MainService {
                     val = entry.getValue().asText();
                 }
             } else if (fieldType == Date.class) {
-                Date date = setting.parseDate(entry.getValue().asText());
+                Date date = dbRowsToCodeSetting.parseDate(entry.getValue().asText());
                 val = "new Date(" + date.getTime() + "L)";
             } else {
                 throw new OperationNotSupportedException(String.format("Type %s not supported", fieldType.getName()));

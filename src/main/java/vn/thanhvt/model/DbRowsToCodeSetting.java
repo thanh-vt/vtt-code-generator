@@ -17,7 +17,7 @@ import java.util.*;
  **/
 @Data
 @Builder
-public class Setting {
+public class DbRowsToCodeSetting {
 
     private final JsonNamingStrategy jsonNamingStrategy;
 
@@ -29,14 +29,14 @@ public class Setting {
 
     private final boolean ignoreNull;
 
-    public static Setting from(JsonNamingStrategy jsonNamingStrategy, boolean ignoreNull, String dateFormat, Set<String> dfList) {
+    public static DbRowsToCodeSetting from(JsonNamingStrategy jsonNamingStrategy, boolean ignoreNull, String dateFormat, Set<String> dfList) {
         Map<String, SimpleDateFormat> sdfPool = new LinkedHashMap<>();
         for (String df : dfList) {
             SimpleDateFormat sdf = new SimpleDateFormat(df);
             sdf.setLenient(false);
             sdfPool.put(df, sdf);
         }
-        return Setting.builder()
+        return DbRowsToCodeSetting.builder()
                 .jsonNamingStrategy(jsonNamingStrategy)
                 .ignoreNull(ignoreNull)
                 .sdfPool(sdfPool)
@@ -44,14 +44,14 @@ public class Setting {
                 .build();
     }
 
-    public static Setting getDefaultSetting() {
+    public static DbRowsToCodeSetting getDefaultSetting() {
         Map<String, SimpleDateFormat> sdfPool = new LinkedHashMap<>();
         for (String df : AppConstant.DEFAULT_DATE_FORMAT_LIST) {
             SimpleDateFormat sdf = new SimpleDateFormat(df);
             sdf.setLenient(false);
             sdfPool.put(df, sdf);
         }
-        return Setting.builder()
+        return DbRowsToCodeSetting.builder()
                 .jsonNamingStrategy(JsonNamingStrategy.SNAKE_CASE)
                 .ignoreNull(true)
                 .sdfPool(sdfPool)

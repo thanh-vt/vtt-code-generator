@@ -7,6 +7,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import vn.thanhvt.util.ResourceUtil;
+import vn.thanhvt.util.StorageUtil;
 
 /**
  * JavaFX App
@@ -27,6 +28,12 @@ public class App extends Application {
         stage.setTitle("JSON TO INIT CODE GENERATOR");
         stage.show();
         mainStage = stage;
+    }
+
+    @Override
+    public void stop() throws Exception {
+        super.stop();
+        StorageUtil.saveSetting();
     }
 
     public static void main(String[] args) {

@@ -1511,3 +1511,7 @@ a.badge:hover, a.badge:focused {
 .separator {
   -fx-padding: 5 0 5 0;
 }
+
+.code-text-area {
+  -fx-text-fill: magenta;
+}

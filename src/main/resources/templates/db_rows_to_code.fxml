@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import vn.thanhvt.component.ArchiveClassesLoader?>
+
+<SplitPane dividerPositions="0.5" focusTraversable="true" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vn.thanhvt.controller.DbRowsToCodeController">
+<items>
+  <AnchorPane>
+    <children>
+      <Label alignment="CENTER" layoutX="30.0" layoutY="14.0" minWidth="60.0" prefWidth="-1.0" text="Input" textAlignment="CENTER" textFill="#0affd9" AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="15.0">
+        <font>
+          <Font size="18.0" fx:id="x1" />
+        </font>
+        <styleClass>
+          <String fx:value="h3" />
+          <String fx:value="b" />
+        </styleClass>
+      </Label>
+      <VBox layoutX="14.0" layoutY="154.0" spacing="10.0" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="50.0">
+        <children>
+<!--          <FlowPane hgap="10.0">-->
+<!--            <children>-->
+<!--              <Button fx:id="browseFileBtn" mnemonicParsing="false" onAction="#openFileBrowser" text="Select Archive file">-->
+<!--                <styleClass>-->
+<!--                  <String fx:value="btn" />-->
+<!--                  <String fx:value="btn-default" />-->
+<!--                  <String fx:value="btn-sm" />-->
+<!--                </styleClass>-->
+<!--              </Button>-->
+<!--              <Button fx:id="clearFileBtn" mnemonicParsing="false" onAction="#clearFile" text="Clear">-->
+<!--                <styleClass>-->
+<!--                  <String fx:value="btn" />-->
+<!--                  <String fx:value="btn-default" />-->
+<!--                  <String fx:value="btn-sm" />-->
+<!--                </styleClass>-->
+<!--              </Button>-->
+<!--              <Label fx:id="fileLabel" maxWidth="300.0" onMouseEntered="#showTooltip" onMouseExited="#hideTooltip" styleClass="i" text="No file selected">-->
+<!--                <tooltip>-->
+<!--                  <Tooltip fx:id="fileLabelTooltip" text="No file selected" />-->
+<!--                </tooltip>-->
+<!--              </Label>-->
+<!--            </children>-->
+<!--            <opaqueInsets>-->
+<!--              <Insets />-->
+<!--            </opaqueInsets>-->
+<!--          </FlowPane>-->
+<!--          <FlowPane hgap="10.0">-->
+<!--            <children>-->
+<!--              <CheckBox fx:id="isSpringCheckbox" mnemonicParsing="false" styleClass="i" text="Is Spring archive?" />-->
+<!--              <Button fx:id="loadBtn" disable="true" mnemonicParsing="false" onAction="#loadClasses" text="Load classes">-->
+<!--                <styleClass>-->
+<!--                  <String fx:value="btn" />-->
+<!--                  <String fx:value="btn-primary" />-->
+<!--                  <String fx:value="btn-sm" />-->
+<!--                </styleClass>-->
+<!--              </Button>-->
+<!--              <Button fx:id="unloadBtn" disable="true" mnemonicParsing="false" onAction="#unloadClasses" text="Unload classes" userData="loz">-->
+<!--                <styleClass>-->
+<!--                  <String fx:value="btn" />-->
+<!--                  <String fx:value="btn-danger" />-->
+<!--                  <String fx:value="btn-sm" />-->
+<!--                </styleClass>-->
+<!--              </Button>-->
+<!--              <ProgressIndicator fx:id="loadingProgress" disable="true" prefHeight="25.0" prefWidth="25.0" visible="false" />-->
+<!--            </children>-->
+<!--          </FlowPane>-->
+          <ArchiveClassesLoader fx:id="acl" />
+          <FlowPane hgap="10.0">
+            <children>
+              <Label alignment="CENTER" prefHeight="25.0" styleClass="b" text="Class Name" />
+              <TextField fx:id="classNameInput" minWidth="250.0" />
+              <Button mnemonicParsing="false" onAction="#onOpenConfig" style="-fx-text-fill: white;" text="Config">
+                <styleClass>
+                  <String fx:value="btn" />
+                  <String fx:value="btn-secondary" />
+                  <String fx:value="btn-sm" />
+                </styleClass>
+              </Button>
+              <Button mnemonicParsing="false" onAction="#generate" text="Generate">
+                <styleClass>
+                  <String fx:value="btn" />
+                  <String fx:value="btn-info" />
+                  <String fx:value="btn-sm" />
+                </styleClass>
+              </Button>
+            </children>
+          </FlowPane>
+            <TextArea fx:id="inputTextArea" minHeight="500.0" styleClass="code-text-area" VBox.vgrow="ALWAYS" />
+        </children>
+      </VBox>
+    </children>
+  </AnchorPane>
+  <AnchorPane>
+    <children>
+      <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" prefHeight="27.0" style="&#10;" text="Output" textAlignment="CENTER" textFill="#0affd9" wrapText="false" AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="15.0">
+        <styleClass>
+          <String fx:value="h3" />
+          <String fx:value="b" />
+        </styleClass>
+            </Label>
+      <TextArea fx:id="outputTextArea" editable="false" layoutX="30.0" layoutY="53.0" prefHeight="469.0" prefWidth="389.0" styleClass="code-text-area" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="50.0" />
+    </children>
+  </AnchorPane>
+</items>
+</SplitPane>

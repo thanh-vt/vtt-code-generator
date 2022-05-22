@@ -7,10 +7,9 @@ import java.util.Enumeration;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.boot.loader.archive.Archive;
+import org.springframework.boot.loader.archive.Archive.Entry;
 
 /**
  * @author pysga
@@ -20,13 +19,16 @@ import org.springframework.boot.loader.archive.Archive;
  **/
 @EqualsAndHashCode(callSuper = true)
 @Data
-@AllArgsConstructor
 public class SimpleJarLoader extends Loader {
 
     private final File jarFile;
 
+    public SimpleJarLoader(File jarFile) {
+        this.jarFile = jarFile;
+    }
+
     @Override
-    public ClassLoader load(Set<String> loadedSourceClassNames) throws Exception {
+    public ClassLoader load(Set<String> loadedSourceClassNames, Set<String> loadedPackageNames) throws Exception {
         try (JarFile jarFile = new JarFile(this.jarFile)) {
             Enumeration<JarEntry> e = jarFile.entries();
             while (e.hasMoreElements()) {
@@ -36,18 +38,23 @@ public class SimpleJarLoader extends Loader {
                         .replace("/", ".")
                         .replace(".class", "");
                     loadedSourceClassNames.add(className);
+                } else {
+                    String packageName = jarEntry.getName()
+                        .replace("/", ".")
+                        .replaceAll(".$", "");
+                    loadedPackageNames.add(packageName);
                 }
             }
         }
         return new URLClassLoader(new URL[]{this.jarFile.toURI().toURL()});
     }
 
-    protected String checkIsSourceClass(Archive.Entry entry) {
-        if (entry.getName().endsWith(".class")) {
-            return entry.getName()
-                .replace("/", ".")
-                .replace(".class", "");
-        }
+    protected EntryClassifier checkIsSourceClass(Entry entry) {
+//        if (entry.getName().endsWith(".class")) {
+//            return entry.getName()
+//                .replace("/", ".")
+//                .replace(".class", "");
+//        }
         return null;
     }
 

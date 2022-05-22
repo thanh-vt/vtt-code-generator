@@ -17,26 +17,35 @@ import org.springframework.boot.loader.archive.ExplodedArchive;
 public class JarLoader extends ExecutableArchiveLoader {
 
     private static final String DEFAULT_CLASSPATH_INDEX_LOCATION = "BOOT-INF/classpath.idx";
-    static final EntryFilter NESTED_ARCHIVE_ENTRY_FILTER = (entry) -> {
-        return entry.isDirectory() ? entry.getName().equals("BOOT-INF/classes/") : entry.getName().startsWith("BOOT-INF/lib/");
-    };
 
-    public JarLoader() {
-    }
+    static final EntryFilter NESTED_ARCHIVE_ENTRY_FILTER = (entry) -> entry.isDirectory() ? entry.getName().equals("BOOT-INF/classes/") : entry.getName().startsWith("BOOT-INF/lib/");
 
     public JarLoader(Archive archive) {
         super(archive);
     }
 
     @Override
-    protected String checkIsSourceClass(Archive.Entry entry) {
-        if (entry.getName().startsWith("BOOT-INF/classes/") && entry.getName().endsWith(".class")) {
-            return entry.getName()
-                .replace("BOOT-INF/classes/", "")
-                .replace("/", ".")
-                .replace(".class", "");
+    protected EntryClassifier checkIsSourceClass(Entry entry) {
+        if (entry.getName().startsWith("BOOT-INF/classes/")) {
+            if (entry.getName().endsWith(".class")) {
+                return new EntryClassifier(
+                    false,
+                    entry.getName()
+                        .replace("BOOT-INF/classes/", "")
+                        .replace("/", ".")
+                        .replace(".class", "")
+                );
+            } else {
+                return new EntryClassifier(
+                    true,
+                    entry.getName()
+                        .replace("BOOT-INF/classes/", "")
+                        .replace("/", ".")
+                        .replaceAll(".$", "")
+                );
+            }
         }
-        return null;
+        return new EntryClassifier(null, null);
     }
 
     protected CustomClassPathIndexFile getClassPathIndex(Archive archive) throws IOException {
