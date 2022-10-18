@@ -59,6 +59,7 @@
    <center>
       <TabPane side="LEFT" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
          <tabs>
+             <Tab fx:id="rsa_signature" onSelectionChanged="#selectTab" text="RSA Signature Generator" />
             <Tab fx:id="db_rows_to_code" onSelectionChanged="#selectTab" text="DB Row(s) to Code" />
             <Tab fx:id="java_to_typescript_model" onSelectionChanged="#selectTab" text="Java to Typescript Model" />
          </tabs>

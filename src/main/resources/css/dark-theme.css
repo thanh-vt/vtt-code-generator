@@ -31,6 +31,6 @@
 }
 
 .code-text-area {
-  -fx-text-fill: gold !important;
+  -fx-text-fill: #0004ff !important;
   -fx-background-color: black !important;
 }
